@@ -1,13 +1,14 @@
+import ITrack from "../interfaces/track";
 import "./Playlist.css";
 
-function Playlist({ list }: { list: string[] }) {
+function Playlist({ list }: { list: ITrack[] }) {
 
     return (
         <div className="playlist">
             <ul>
                 {
                     list.map((track) => (
-                        <li>{track}</li>
+                        <li>{track.name}</li>
                     ))
                 }
             </ul>

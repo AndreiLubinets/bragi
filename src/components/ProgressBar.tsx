@@ -1,11 +1,12 @@
+import { useState } from "react";
 import "./ProgressBar.css";
 
-const ProgressBar = () => {
+const ProgressBar = ({ length }: { length: string }) => {
+    const [current, setCurrent] = useState(0);
+
     return (
         <div className="progress">
-            <span className="time current">00:00</span>
-            <input type="range" />
-            <span className="time">03:34</span>
+            <progress value={current} max={length}></progress>
         </div>
     );
 };

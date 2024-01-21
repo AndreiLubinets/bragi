@@ -1,22 +1,28 @@
-use std::{any::Any, error::Error, fs::File, io::BufReader, path::PathBuf, time::Duration};
+use std::{error::Error, io::BufReader, path::PathBuf, time::Duration};
 
-use rodio::{OutputStream, Sink, Source};
+use audiotags::Tag;
+use rodio::{OutputStream, Sink};
+use tauri::async_runtime::RwLock;
 
 use self::track::Track;
 
 mod playtime;
-mod track;
+pub mod track;
 
 pub struct Player {
     _stream: StreamWrapper,
     sink: Sink,
-    playlist: Vec<Track>,
+    playlist: RwLock<Vec<Track>>,
 }
 
 impl Player {
-    pub async fn play(&'_ self, path: impl Into<PathBuf>) -> Result<(), Box<dyn Error + '_>> {
+    pub async fn open(&'_ self, path: impl Into<PathBuf>) -> Result<(), Box<dyn Error + '_>> {
         self.sink.stop();
-        let file = std::fs::File::open(path.into())?;
+
+        let path_to_file: PathBuf = path.into();
+        let file = std::fs::File::open(&path_to_file)?;
+        self.add_to_playlist(path_to_file).await;
+
         self.sink.append(rodio::Decoder::new(BufReader::new(file))?);
         self.sink.play();
 
@@ -27,7 +33,7 @@ impl Player {
         Ok(())
     }
 
-    pub fn start(&self) {
+    pub fn play(&self) {
         self.sink.play();
         println!("Sink resumed");
     }
@@ -42,20 +48,25 @@ impl Player {
         println!("Sink paused");
     }
 
-    pub fn playtime(&self) {}
+    pub fn playtime(&self) {
+        todo!()
+    }
 
     pub fn is_playing(&self) -> bool {
         !(self.sink.is_paused() || self.sink.empty())
     }
 
-    pub fn get_playlist(&self) -> &[Track] {
-        self.playlist.as_slice()
+    pub fn get_playlist(&self) -> Vec<Track> {
+        self.playlist.blocking_read().to_vec()
     }
 
-    /*fn add_to_playlist(&self, path: PathBuf) {
+    async fn add_to_playlist(&self, path: PathBuf) {
+        //let metadata = Tag::new().read_from_path(&path).unwrap();
         self.playlist
-            .push(Track::new(path, Duration::from_secs(15)))
-    }*/
+            .write()
+            .await
+            .push(Track::new(path, Duration::from_secs(350)))
+    }
 }
 
 impl Default for Player {
@@ -65,7 +76,7 @@ impl Default for Player {
         Self {
             _stream: StreamWrapper(stream),
             sink,
-            playlist: vec![],
+            playlist: RwLock::new(vec![]),
         }
     }
 }

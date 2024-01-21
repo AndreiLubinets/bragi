@@ -1,6 +1,7 @@
 input[type="range"] {
     --range-progress: 0;
-    /* ... */
+    pointer-events: none;
+    width: auto;
 }
 
 input[type="range"]::before {
@@ -8,4 +9,14 @@ input[type="range"]::before {
     background: #f50;
     width: var(--range-progress);
     /* ... */
+}
+
+.progress {
+    margin: 5px;
+    background-color: #0f0f0f98;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+progress {
+    width: 100%;
 }

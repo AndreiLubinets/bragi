@@ -1,15 +1,6 @@
-use std::path::PathBuf;
-
 use tauri::State;
 
-use crate::player::Player;
-
-#[tauri::command]
-pub async fn play(player: State<'_, Player>, path: PathBuf) -> Result<(), ()> {
-    player.play(path).await;
-
-    Ok(())
-}
+use crate::player::{track::Track, Player};
 
 #[tauri::command]
 pub fn stop(player: State<Player>) {
@@ -22,11 +13,16 @@ pub fn pause(player: State<Player>) {
 }
 
 #[tauri::command]
-pub fn start(player: State<Player>) {
-    player.start();
+pub fn play(player: State<Player>) {
+    player.play();
 }
 
 #[tauri::command]
 pub fn is_playing(player: State<Player>) -> bool {
     player.is_playing()
+}
+
+#[tauri::command]
+pub fn get_playlist(player: State<Player>) -> Vec<Track> {
+    player.get_playlist()
 }

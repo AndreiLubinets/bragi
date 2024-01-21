@@ -1,24 +1,29 @@
-use std::{path::PathBuf, time::Duration};
+use std::{fs::Metadata, path::PathBuf, time::Duration};
 
+use serde::Serialize;
+
+//#[serde_as]
+#[derive(Clone, Serialize, Default)]
 pub struct Track {
-    path: PathBuf,
-    name: String,
+    title: String,
+    artist: String,
+    //#[serde_as(as = "serde_with::DurationSeconds<i64>")]
     length: Duration,
+    path: PathBuf,
 }
 
 impl Track {
     pub fn new(path: impl Into<PathBuf>, length: impl Into<Duration>) -> Self {
-        let converted_path: PathBuf = path.into();
-        let name = converted_path
-            .file_stem()
-            .unwrap_or_default()
-            .to_str()
-            .unwrap_or_default()
-            .to_string();
         Track {
-            path: converted_path,
-            name,
+            path: path.into(),
             length: length.into(),
+            ..Default::default()
         }
+    }
+}
+
+impl From<Metadata> for Track {
+    fn from(value: Metadata) -> Self {
+        todo!()
     }
 }

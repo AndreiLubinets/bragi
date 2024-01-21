@@ -13,7 +13,9 @@ impl Playtime {
         }
     }
 
-    fn start(&self) {}
+    fn start(&self) {
+        todo!()
+    }
 
     pub fn current(&self) -> Duration {
         self.current

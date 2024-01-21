@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { open } from '@tauri-apps/api/dialog';
 import { invoke } from "@tauri-apps/api/tauri";
 import { } from "@tauri-apps/api/window"
 import play_icon from './assets/play.svg';
@@ -9,13 +8,19 @@ import "./App.css";
 
 import Playlist from "./components/Playlist";
 import ProgressBar from "./components/ProgressBar";
+import ITrack from "./interfaces/track";
+import { listen } from "@tauri-apps/api/event";
 
 function App() {
   const [playing, setPlaying] = useState(false);
+  const [playList, setPlayList] = useState<ITrack[]>([]);
 
-  async function play(path: string) {
-    await invoke("play", { path });
-  }
+  const unlisten = listen('open', async () => {
+    console.log("Event = open");
+    const list = await get_playlist();
+    console.log(list);
+    setPlayList(list);
+  })
 
   async function stop() {
     await invoke("stop", {});
@@ -25,43 +30,24 @@ function App() {
     await invoke("pause", {});
   }
 
-  async function start() {
-    await invoke("start", {});
+  async function play() {
+    await invoke("play", {});
   }
 
-  async function openFile() {
-    const path = await open({
-      multiple: false,
-      filters: [{
-        name: 'Audio  ',
-        extensions: ['mp3']
-      }]
-    })
-    console.log(path);
-
-    if (Array.isArray(path)) {
-
-    } else if (path === null) {
-      // user cancelled the selection
-    } else {
-      play(path);
-    }
+  async function get_playlist(): Promise<ITrack[]> {
+    return await invoke("get_playlist", {});
   }
 
   return (
     <div className="container">
-      <button onClick={() => openFile()}>Open</button>
-
-      {playing && <p>Playing</p>}
-
-      <Playlist list={["test"]}></Playlist>
-
-      <ProgressBar></ProgressBar>
       <div className="controls">
-        <button className="control-button" onClick={() => start()}><img src={play_icon} /></button>
+        <button className="control-button" onClick={() => play()}><img src={play_icon} /></button>
         <button className="control-button" onClick={() => pause()}><img src={pause_icon} /></button>
         <button className="control-button" onClick={() => stop()}><img src={stop_icon} /></button>
       </div>
+      <ProgressBar length={playList.length !== 0 ? playList[0].duration : "0"}></ProgressBar>
+
+      <Playlist list={playList}></Playlist>
 
     </div>
   );

@@ -115,6 +115,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "audiotags"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f47bdf1acc4fa4113f8aa72bb3bfe62a61443c61d0d997b723ba61ce102c79b"
+dependencies = [
+ "audiotags-dev-macro",
+ "id3",
+ "metaflac",
+ "mp4ameta",
+ "readme-rustdocifier",
+ "thiserror",
+]
+
+[[package]]
+name = "audiotags-dev-macro"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b79298591161f312f06327df7963063ee07466be303dcc3084a44ec293cb36e"
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -199,9 +219,11 @@ name = "bragi"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "audiotags",
  "rodio",
  "serde",
  "serde_json",
+ "serde_with",
  "tauri",
  "tauri-build",
 ]
@@ -1355,6 +1377,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "id3"
+version = "1.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ba0a11a3cf6f08d58a5629531bdb4e7c3b8b595e9812a31a7058b1176c4631e"
+dependencies = [
+ "bitflags 2.4.1",
+ "byteorder",
+ "flate2",
+]
+
+[[package]]
 name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1716,6 +1749,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "metaflac"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1470d3cc1bb0d692af5eb3afb594330b8ba09fd91c32c4e1c6322172a5ba750"
+dependencies = [
+ "byteorder",
+ "hex",
+ "log",
+]
+
+[[package]]
 name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1730,6 +1774,22 @@ dependencies = [
  "adler",
  "simd-adler32",
 ]
+
+[[package]]
+name = "mp4ameta"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb23d62e8eb5299a3f79657c70ea9269eac8f6239a76952689bcd06a74057e81"
+dependencies = [
+ "lazy_static",
+ "mp4ameta_proc",
+]
+
+[[package]]
+name = "mp4ameta_proc"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "07dcca13d1740c0a665f77104803360da0bdb3323ecce2e93fa2c959a6d52806"
 
 [[package]]
 name = "ndk"
@@ -2415,6 +2475,12 @@ name = "raw-window-handle"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2ff9a1f06a88b01621b7ae906ef0211290d1c8a168a15542486a8f61c0833b9"
+
+[[package]]
+name = "readme-rustdocifier"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08ad765b21a08b1a8e5cdce052719188a23772bcbefb3c439f0baaf62c56ceac"
 
 [[package]]
 name = "redox_syscall"
