@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use tauri::State;
 
 use crate::player::{track::Track, Player};
@@ -25,4 +27,9 @@ pub fn is_playing(player: State<Player>) -> bool {
 #[tauri::command]
 pub fn get_playlist(player: State<Player>) -> Vec<Track> {
     player.get_playlist()
+}
+
+#[tauri::command]
+pub fn set_volume(player: State<Player>, volume: f32) {
+    player.set_volume(volume);
 }

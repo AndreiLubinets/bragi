@@ -1,10 +1,10 @@
-input[type="range"] {
+.progress input[type="range"] {
     --range-progress: 0;
     pointer-events: none;
     width: auto;
 }
 
-input[type="range"]::before {
+.progress input[type="range"]::before {
     /* ... */
     background: #f50;
     width: var(--range-progress);

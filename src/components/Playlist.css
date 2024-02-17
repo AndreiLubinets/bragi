@@ -2,9 +2,25 @@
     height: 100%;
     margin: 5px;
     text-align: left;
-    border: 1px solid cadetblue;
+    border: 2px solid black;
 }
 
-.playlist ul {
-    list-style-type: none;
+.playlist table {
+    font-weight: normal
+}
+
+.playlist td {
+    border: 1px solid black;
+    border-right: 0px;
+    margin-right: 0px;
+}
+
+.playlist th {
+    border: 1px solid black;
+    border-right: 0px;
+    margin-right: 0px;
+}
+
+.selected {
+    background-color: blueviolet;
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./ProgressBar.css";
 
 const ProgressBar = ({ length }: { length: string }) => {
-    const [current, setCurrent] = useState(0);
+    const [current] = useState(0);
 
     return (
         <div className="progress">

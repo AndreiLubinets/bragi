@@ -1,7 +1,8 @@
 interface ITrack {
-    path: string,
     title: string,
-    duration: string
+    artist: string,
+    album: string,
+    length: number,
 }
 
 export default ITrack;

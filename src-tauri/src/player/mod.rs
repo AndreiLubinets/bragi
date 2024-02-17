@@ -1,12 +1,11 @@
-use std::{error::Error, io::BufReader, path::PathBuf, time::Duration};
+use std::{error::Error, io::BufReader, path::PathBuf};
 
-use audiotags::Tag;
 use rodio::{OutputStream, Sink};
 use tauri::async_runtime::RwLock;
 
 use self::track::Track;
 
-mod playtime;
+mod queue;
 pub mod track;
 
 pub struct Player {
@@ -61,11 +60,13 @@ impl Player {
     }
 
     async fn add_to_playlist(&self, path: PathBuf) {
-        //let metadata = Tag::new().read_from_path(&path).unwrap();
-        self.playlist
-            .write()
-            .await
-            .push(Track::new(path, Duration::from_secs(350)))
+        self.playlist.write().await.push(Track::new(path))
+    }
+
+    pub fn set_volume(&self, volume: impl Into<f32>) {
+        let volume_f32: f32 = volume.into();
+        self.sink.set_volume(volume_f32);
+        println!("Volume changed to: {}", volume_f32)
     }
 }
 
