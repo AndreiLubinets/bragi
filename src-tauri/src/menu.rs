@@ -29,7 +29,9 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                             }
 
                             tauri::async_runtime::spawn(async move {
-                                let _ = app.state::<Player>().open(path).await;
+                                if let Err(err) = app.state::<Player>().open(path).await {
+                                    println!("{}", err);
+                                }
                             });
                         }
                         None => println!("Unable to open file"),

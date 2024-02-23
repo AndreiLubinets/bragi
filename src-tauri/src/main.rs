@@ -20,6 +20,7 @@ fn main() {
             command::is_playing,
             command::get_playlist,
             command::set_volume,
+            command::playtime
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

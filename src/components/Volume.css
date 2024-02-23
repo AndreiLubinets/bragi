@@ -1,0 +1,9 @@
+input[type="range"] {
+    padding: 0;
+    margin: 5px;
+    visibility: hidden;
+}
+
+input[type="range"].visible {
+    visibility: visible;
+}
