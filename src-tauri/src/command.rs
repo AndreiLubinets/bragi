@@ -1,12 +1,13 @@
-use std::time::Duration;
+use std::collections::VecDeque;
 
 use tauri::State;
 
 use crate::player::{track::Track, Player};
 
 #[tauri::command]
-pub fn stop(player: State<Player>) {
-    player.stop();
+pub async fn stop(player: State<'_, Player>) -> Result<(), ()> {
+    player.stop().await;
+    Ok(())
 }
 
 #[tauri::command]
@@ -15,8 +16,9 @@ pub fn pause(player: State<Player>) {
 }
 
 #[tauri::command]
-pub fn play(player: State<Player>) {
-    player.play();
+pub async fn play(player: State<'_, Player>) -> Result<(), ()> {
+    player.play().await;
+    Ok(())
 }
 
 #[tauri::command]
@@ -25,11 +27,16 @@ pub fn is_playing(player: State<Player>) -> bool {
 }
 
 #[tauri::command]
-pub fn get_playlist(player: State<Player>) -> Vec<Track> {
+pub fn get_playlist(player: State<Player>) -> VecDeque<Track> {
     player.get_playlist()
 }
 
 #[tauri::command]
 pub fn set_volume(player: State<Player>, volume: f32) {
     player.set_volume(volume);
+}
+
+#[tauri::command]
+pub fn playtime(player: State<Player>) -> f64 {
+    player.playtime().as_secs_f64()
 }

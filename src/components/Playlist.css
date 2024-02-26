@@ -6,21 +6,23 @@
 }
 
 .playlist table {
-    font-weight: normal
+    font-weight: normal;
 }
 
 .playlist td {
     border: 1px solid black;
     border-right: 0px;
     margin-right: 0px;
+    cursor: pointer;
 }
 
 .playlist th {
+    background-color: #0f0f0f;
     border: 1px solid black;
     border-right: 0px;
     margin-right: 0px;
 }
 
 .selected {
-    background-color: blueviolet;
+    background-color: #1B1A55;
 }

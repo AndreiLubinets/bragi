@@ -4,21 +4,18 @@ import { } from "@tauri-apps/api/window"
 import play_icon from './assets/play.svg';
 import stop_icon from './assets/stop.svg';
 import pause_icon from './assets/pause.svg';
-import "./App.css";
 
 import Playlist from "./components/Playlist";
 import ITrack from "./interfaces/track";
 import { listen } from "@tauri-apps/api/event";
 import Volume from "./components/Volume";
+import ProgressBar from "./components/ProgressBar";
 
 function App() {
   const [playList, setPlayList] = useState<ITrack[]>([]);
 
   listen('open', async () => {
-    console.log("Event = open");
-    const list = await get_playlist();
-    console.log(list);
-    setPlayList(list);
+    setPlayList(await get_playlist());
   })
 
   async function stop() {
@@ -46,9 +43,11 @@ function App() {
         <Volume></Volume>
       </div>
 
+      <ProgressBar length={playList[0] ? playList[0].length : 0}></ProgressBar>
+
       <Playlist list={playList}></Playlist>
 
-    </div>
+    </div >
   );
 }
 
