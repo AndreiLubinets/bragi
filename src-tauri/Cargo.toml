@@ -21,6 +21,9 @@ rodio = "*"
 audiotags = "*"
 anyhow = "*"
 
+[dev-dependencies]
+temp-dir = "*"
+
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!

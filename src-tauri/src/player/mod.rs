@@ -1,16 +1,11 @@
-use std::{
-    collections::VecDeque,
-    error::Error,
-    io::BufReader,
-    path::PathBuf,
-    time::{Duration, Instant},
-};
+use std::{collections::VecDeque, error::Error, io::BufReader, path::PathBuf, time::Duration};
 
 use rodio::{OutputStream, Sink};
 use tauri::async_runtime::RwLock;
 
-use self::track::Track;
+use self::{playtime::Playtime, track::Track};
 
+mod playtime;
 mod queue;
 pub mod track;
 
@@ -27,7 +22,7 @@ impl Player {
 
         let path_to_file: PathBuf = path.into();
         let file = std::fs::File::open(&path_to_file)?;
-        self.add_to_playlist(path_to_file).await;
+        self.add_to_playlist(path_to_file).await?;
 
         self.sink.append(rodio::Decoder::new(BufReader::new(file))?);
         self.play().await;
@@ -70,8 +65,12 @@ impl Player {
         self.playlist.blocking_read().clone()
     }
 
-    async fn add_to_playlist(&self, path: PathBuf) {
-        self.playlist.write().await.push_front(Track::new(path))
+    async fn add_to_playlist(&self, path: PathBuf) -> anyhow::Result<()> {
+        self.playlist
+            .write()
+            .await
+            .push_front(Track::try_new(path)?);
+        Ok(())
     }
 
     pub fn set_volume(&self, volume: impl Into<f32>) {
@@ -90,47 +89,6 @@ impl Default for Player {
             sink,
             playlist: RwLock::new(VecDeque::new()),
             playtime: RwLock::new(Playtime::default()),
-        }
-    }
-}
-
-#[derive(Clone, Default)]
-struct Playtime {
-    start_time: Option<Instant>,
-    pause_time: Option<Instant>,
-    pause_duration: Duration,
-}
-
-impl Playtime {
-    pub fn pause(&mut self) {
-        self.pause_time = Some(Instant::now());
-    }
-
-    pub fn play(&mut self) {
-        if self.start_time.is_none() {
-            self.start_time = Some(Instant::now());
-        }
-
-        if let Some(t) = self.pause_time.take() {
-            self.pause_duration += t.elapsed();
-        }
-    }
-
-    /*
-    pub fn stop(&mut self) {
-        self.start_time = None;
-        self.pause_time = None;
-        self.pause_duration = Duration::default();
-    }
-    */
-
-    pub fn time(&self) -> Duration {
-        match self.start_time {
-            Some(start) => match self.pause_time {
-                Some(t) => start.elapsed() - t.elapsed() - self.pause_duration,
-                None => start.elapsed() - self.pause_duration,
-            },
-            None => Duration::ZERO,
         }
     }
 }
