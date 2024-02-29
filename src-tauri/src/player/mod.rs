@@ -1,6 +1,5 @@
 use std::{
     collections::VecDeque,
-    error::Error,
     io::BufReader,
     path::PathBuf,
     time::{Duration, Instant},
@@ -22,7 +21,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub async fn open(&'_ self, path: impl Into<PathBuf>) -> Result<(), Box<dyn Error + '_>> {
+    pub async fn open(&'_ self, path: impl Into<PathBuf>) -> anyhow::Result<()> {
         self.sink.stop();
 
         let path_to_file: PathBuf = path.into();

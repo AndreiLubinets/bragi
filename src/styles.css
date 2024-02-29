@@ -114,7 +114,10 @@ button {
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
-    background-color: #070F2B;
+    background: rgb(17,17,40);
+    background: linear-gradient(180deg, rgba(17,17,40,1) 18%, rgba(48,49,81,1) 100%);
+    background-repeat: no-repeat;
+    height: 100%;
   }
 
   a:hover {
