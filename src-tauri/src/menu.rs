@@ -1,3 +1,4 @@
+use log::{error, info};
 use tauri::{api::dialog, CustomMenuItem, Manager, Menu, Submenu, WindowMenuEvent};
 
 use crate::player::Player;
@@ -25,19 +26,19 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                     match path_buf {
                         Some(path) => {
                             if let Err(err) = app.emit_all("open", ()) {
-                                println!("{}", err);
+                                error!("{}", err);
                             }
 
                             tauri::async_runtime::spawn(async move {
                                 if let Err(err) = app.state::<Player>().open(path).await {
-                                    println!("{}", err);
+                                    error!("{}", err);
                                 }
                             });
                         }
-                        None => println!("Unable to open file"),
+                        None => info!("Unable to open file"),
                     };
                 }),
-            _ => println!("Unknown event"),
+            _ => error!("Unknown event"),
         }
     }
 }

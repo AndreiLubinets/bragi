@@ -20,6 +20,9 @@ serde_with = "*"
 rodio = "*"
 audiotags = "*"
 anyhow = "*"
+log = "*"
+fern = "*"
+humantime = "*"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
