@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug, info};
 use std::{
     collections::VecDeque,
     io::BufReader,
@@ -105,26 +105,20 @@ impl Playtime {
     pub fn pause(&mut self) {
         if self.start_time.is_some() {
             self.pause_time = Some(Instant::now());
+            debug!("Paused at: {:?}", self.pause_time);
         }
     }
 
     pub fn play(&mut self) {
         if self.start_time.is_none() {
             self.start_time = Some(Instant::now());
+            debug!("Started at: {:?}", self.start_time);
         }
 
         if let Some(t) = self.pause_time.take() {
             self.pause_duration += t.elapsed();
         }
     }
-
-    /*
-    pub fn stop(&mut self) {
-        self.start_time = None;
-        self.pause_time = None;
-        self.pause_duration = Duration::default();
-    }
-    */
 
     pub fn time(&self) -> Duration {
         match self.start_time {
