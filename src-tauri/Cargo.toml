@@ -20,6 +20,9 @@ serde_with = "*"
 rodio = "*"
 audiotags = "*"
 anyhow = "*"
+log = "*"
+fern = "*"
+humantime = "*"
 
 [dev-dependencies]
 temp-dir = "*"
