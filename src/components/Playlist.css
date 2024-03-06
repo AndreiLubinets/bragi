@@ -5,18 +5,19 @@
     border: 2px solid black;
 }
 
-.playlist table {
+table {
     font-weight: normal;
 }
 
-.playlist td {
+tr {
+    background-color: #222222;
     border: 1px solid black;
     border-right: 0px;
     margin-right: 0px;
     cursor: pointer;
 }
 
-.playlist th {
+th {
     background-color: #0f0f0f;
     border: 1px solid black;
     border-right: 0px;
