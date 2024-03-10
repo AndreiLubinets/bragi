@@ -69,6 +69,10 @@ impl Track {
 
         Ok(track)
     }
+
+    pub fn path(&self) -> &PathBuf {
+        &self.path
+    }
 }
 
 #[cfg(test)]

@@ -276,6 +276,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-log",
  "temp-dir",
+ "tokio",
 ]
 
 [[package]]

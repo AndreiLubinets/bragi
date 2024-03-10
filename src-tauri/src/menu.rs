@@ -1,4 +1,4 @@
-use log::{error, info};
+use log::{debug, error, info};
 use tauri::{api::dialog, CustomMenuItem, Manager, Menu, Submenu, WindowMenuEvent};
 
 use crate::player::Player;
@@ -25,17 +25,24 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                 .pick_file(move |path_buf| {
                     match path_buf {
                         Some(path) => {
-                            if let Err(err) = app.emit_all("open", ()) {
-                                error!("{}", err);
-                            }
-
                             tauri::async_runtime::spawn(async move {
-                                if let Err(err) = app.state::<Player>().open(path).await {
-                                    error!("{}", err);
+                                let player = app.state::<Player>();
+                                match player.open(path).await {
+                                    Ok(_) => {
+                                        if let Err(err) = app.emit_all("open", ()) {
+                                            error!("{}", err);
+                                        }
+                                        if !player.is_playing().await {
+                                            if let Err(err) = player.play_queue().await {
+                                                error!("{}", err);
+                                            }
+                                        }
+                                    }
+                                    Err(err) => error!("{}", err),
                                 }
                             });
                         }
-                        None => info!("Unable to open file"),
+                        None => debug!("Nothing selected"),
                     };
                 }),
             _ => error!("Unknown event"),

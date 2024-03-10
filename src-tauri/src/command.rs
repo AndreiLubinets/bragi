@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use tauri::State;
+use tauri::{AppHandle, State};
 
 use crate::player::{track::Track, Player};
 
@@ -22,13 +22,13 @@ pub async fn play(player: State<'_, Player>) -> Result<(), ()> {
 }
 
 #[tauri::command]
-pub fn is_playing(player: State<Player>) -> bool {
-    player.is_playing()
+pub async fn is_playing(player: State<'_, Player>) -> Result<bool, ()> {
+    Ok(player.is_playing().await)
 }
 
 #[tauri::command]
-pub fn get_playlist(player: State<Player>) -> VecDeque<Track> {
-    player.get_playlist()
+pub async fn get_playlist(player: State<'_, Player>) -> Result<VecDeque<Track>, ()> {
+    Ok(player.get_playlist().await)
 }
 
 #[tauri::command]
