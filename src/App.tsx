@@ -7,17 +7,22 @@ import pause_icon from './assets/pause.svg';
 
 import Playlist from "./components/Playlist";
 import ITrack from "./interfaces/track";
-import { listen } from "@tauri-apps/api/event";
+import { Event, listen } from "@tauri-apps/api/event";
 import Volume from "./components/Volume";
 import ProgressBar from "./components/ProgressBar";
 
 function App() {
   const [playList, setPlayList] = useState<ITrack[]>([]);
+  const [currentTrack, setCurrentTrack] = useState(0);
   const [playing, setPlaying] = useState(false);
 
   listen('open', async () => {
-    setPlayList(await get_playlist());
+    setPlayList(await getPlaylist());
     setPlaying(true);
+  })
+
+  listen('track_changed', async (event: Event<number>) => {
+    setCurrentTrack(event.payload);
   })
 
   async function stop() {
@@ -35,7 +40,7 @@ function App() {
     setPlaying(true);
   }
 
-  async function get_playlist(): Promise<ITrack[]> {
+  async function getPlaylist(): Promise<ITrack[]> {
     return await invoke("get_playlist", {});
   }
 
@@ -49,9 +54,9 @@ function App() {
         <Volume></Volume>
       </div>
 
-      <ProgressBar length={playList[0] ? playList[0].length : 0}></ProgressBar>
+      <ProgressBar length={playList[currentTrack] ? playList[currentTrack].length : 0}></ProgressBar>
 
-      <Playlist list={playList}></Playlist>
+      <Playlist list={playList} currentTrack={currentTrack}></Playlist>
 
     </div >
   );

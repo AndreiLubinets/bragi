@@ -1,8 +1,10 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use log::error;
 use menu::{event_handler, menu};
 use player::Player;
+use tauri::{async_runtime, Manager};
 
 mod command;
 mod menu;
@@ -15,7 +17,21 @@ fn main() {
                 .level(log::LevelFilter::Info)
                 .build(),
         )
-        .manage(Player::new().expect("failed to init player"))
+        .setup(|app| {
+            let (player, rx) = Player::new().expect("failed to init player");
+            let handle = app.handle();
+            app.manage(player);
+
+            async_runtime::spawn(async move {
+                while let Ok(index) = rx.recv() {
+                    if let Err(err) = handle.emit_all("track_changed", index) {
+                        error!("{}", err);
+                    }
+                }
+            });
+
+            Ok(())
+        })
         .menu(menu())
         .on_menu_event(event_handler())
         .invoke_handler(tauri::generate_handler![
@@ -25,7 +41,8 @@ fn main() {
             command::is_playing,
             command::get_playlist,
             command::set_volume,
-            command::playtime
+            command::playtime,
+            //command::play_queue
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

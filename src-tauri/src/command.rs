@@ -1,6 +1,7 @@
-use std::collections::VecDeque;
+use std::{collections::VecDeque, error::Error, path::Path};
 
-use tauri::{AppHandle, State};
+use log::error;
+use tauri::{Manager, Runtime, State};
 
 use crate::player::{track::Track, Player};
 
@@ -39,4 +40,21 @@ pub fn set_volume(player: State<Player>, volume: f32) {
 #[tauri::command]
 pub fn playtime(player: State<Player>) -> f64 {
     player.playtime().as_secs_f64()
+}
+
+#[tauri::command]
+pub async fn play_queue<R: Runtime>(
+    app: tauri::AppHandle<R>,
+    path: impl AsRef<Path>,
+) -> Result<(), Box<dyn Error>> {
+    let player = app.state::<Player>();
+    player.open(path).await?;
+    app.emit_all("open", ())?;
+    if !player.is_playing().await {
+        if let Err(err) = player.play_queue().await {
+            error!("{}", err);
+        }
+    }
+
+    Ok(())
 }

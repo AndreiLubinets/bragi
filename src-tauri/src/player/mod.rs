@@ -1,8 +1,9 @@
-use log::{error, info};
+use log::info;
 use std::{
     collections::VecDeque,
     io::BufReader,
-    path::{Path, PathBuf},
+    path::Path,
+    sync::mpsc::{self, Receiver, Sender},
     time::Duration,
 };
 
@@ -20,21 +21,24 @@ pub struct Player {
     sink: Sink,
     queue: Queue,
     playtime: RwLock<Playtime>,
+    event_handler: Sender<usize>,
 }
 
 impl Player {
-    pub fn new() -> anyhow::Result<Self> {
+    pub fn new() -> anyhow::Result<(Self, Receiver<usize>)> {
         let (stream, handle) = OutputStream::try_default()?;
 
         let sink = Sink::try_new(&handle)?;
+        let event_handler = mpsc::channel();
         let player = Self {
             _stream: StreamWrapper(stream),
             sink,
             queue: Queue::new(),
             playtime: RwLock::new(Playtime::default()),
+            event_handler: event_handler.0,
         };
 
-        Ok(player)
+        Ok((player, event_handler.1))
     }
 
     pub async fn open(&self, path: impl AsRef<Path>) -> anyhow::Result<()> {
@@ -44,8 +48,9 @@ impl Player {
 
     pub async fn play_queue(&self) -> anyhow::Result<()> {
         while let Some(track) = self.queue.next().await {
-            let file = std::fs::File::open(&track.path())?;
+            let file = std::fs::File::open(track.path())?;
             self.sink.append(rodio::Decoder::new(BufReader::new(file))?);
+            self.event_handler.send(self.queue.current())?;
             self.play().await;
 
             info!("Playing {}", &track.path().to_string_lossy());
