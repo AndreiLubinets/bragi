@@ -1,9 +1,6 @@
 use std::{
     collections::VecDeque,
-    sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc,
-    },
+    sync::atomic::{AtomicUsize, Ordering},
     usize,
 };
 
@@ -13,14 +10,14 @@ use tauri::async_runtime::Mutex;
 use super::track::Track;
 
 pub struct Queue {
-    tracks: Arc<Mutex<VecDeque<Track>>>,
+    tracks: Mutex<VecDeque<Track>>,
     current: AtomicUsize,
 }
 
 impl Queue {
     pub fn new() -> Self {
         Self {
-            tracks: Arc::new(Mutex::new(VecDeque::new())),
+            tracks: Mutex::new(VecDeque::new()),
             current: AtomicUsize::new(0),
         }
     }
@@ -32,9 +29,6 @@ impl Queue {
 
     pub async fn next(&self) -> Option<Track> {
         let guard = self.tracks.lock().await;
-        if guard.is_empty() || self.current.load(Ordering::Relaxed) >= guard.len() {
-            return None;
-        }
 
         let track = guard.get(self.current.fetch_add(1, Ordering::Relaxed));
 
@@ -42,7 +36,11 @@ impl Queue {
     }
 
     pub fn current(&self) -> usize {
-        self.current.load(Ordering::Relaxed)
+        let index = self.current.load(Ordering::Relaxed);
+        if index == 0 {
+            return index;
+        }
+        index - 1
     }
 
     //TODO: Remove clone
@@ -87,8 +85,8 @@ mod tests {
     #[tokio::test]
     async fn current() {
         let queue = Queue::new();
-        let expected_first = 1;
-        let expected_second = 2;
+        let expected_first = 0;
+        let expected_second = 1;
         queue.add(Track::default()).await;
         queue.add(Track::default()).await;
 
