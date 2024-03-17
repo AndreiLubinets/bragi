@@ -3,7 +3,7 @@
 
 use log::error;
 use menu::{event_handler, menu};
-use player::Player;
+use player::{Event, Player};
 use tauri::{async_runtime, Manager};
 
 mod command;
@@ -23,9 +23,18 @@ fn main() {
             app.manage(player);
 
             async_runtime::spawn(async move {
-                while let Ok(index) = rx.recv() {
-                    if let Err(err) = handle.emit_all("track_changed", index) {
-                        error!("{}", err);
+                while let Ok(event) = rx.recv() {
+                    match event {
+                        Event::TrackChanged(index) => {
+                            if let Err(err) = handle.emit_all("track_changed", index) {
+                                error!("{}", err);
+                            }
+                        }
+                        Event::PlaybackStopped => {
+                            if let Err(err) = handle.emit_all("playback_stopped", ()) {
+                                error!("{}", err);
+                            }
+                        }
                     }
                 }
             });

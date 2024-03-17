@@ -24,7 +24,7 @@ pub async fn play(player: State<'_, Player>) -> Result<(), ()> {
 
 #[tauri::command]
 pub async fn is_playing(player: State<'_, Player>) -> Result<bool, ()> {
-    Ok(player.is_playing().await)
+    Ok(player.is_playing())
 }
 
 #[tauri::command]
@@ -50,7 +50,7 @@ pub async fn play_queue<R: Runtime>(
     let player = app.state::<Player>();
     player.open(path).await?;
     app.emit_all("open", ())?;
-    if !player.is_playing().await {
+    if !player.is_playing() {
         if let Err(err) = player.play_queue().await {
             error!("{}", err);
         }

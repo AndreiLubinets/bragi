@@ -47,16 +47,22 @@ impl Queue {
     pub async fn get_playlist(&self) -> VecDeque<Track> {
         self.tracks.lock().await.clone()
     }
+
+    pub fn reset(&self) {
+        self.current.store(0, Ordering::Relaxed);
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use tokio::test;
+
     use crate::player::track::Track;
     use std::collections::VecDeque;
 
     use super::Queue;
 
-    #[tokio::test]
+    #[test]
     async fn add() {
         let queue = Queue::new();
         queue.add(Track::default()).await;
@@ -64,7 +70,7 @@ mod tests {
         assert_eq!(Track::default(), queue.next().await.unwrap());
     }
 
-    #[tokio::test]
+    #[test]
     async fn next() {
         let queue = Queue::new();
         queue.add(Track::default()).await;
@@ -75,14 +81,14 @@ mod tests {
         assert_eq!(None, queue.next().await);
     }
 
-    #[tokio::test]
+    #[test]
     async fn next_empty_queue() {
         let queue = Queue::new();
 
         assert_eq!(None, queue.next().await);
     }
 
-    #[tokio::test]
+    #[test]
     async fn current() {
         let queue = Queue::new();
         let expected_first = 0;
@@ -100,7 +106,7 @@ mod tests {
         assert_eq!(expected_second, second_index)
     }
 
-    #[tokio::test]
+    #[test]
     async fn current_empty_queue() {
         let queue = Queue::new();
         let expected = 0;
@@ -113,7 +119,7 @@ mod tests {
         assert_eq!(expected, secod_index);
     }
 
-    #[tokio::test]
+    #[test]
     async fn get_playlist() {
         let queue = Queue::new();
         let mut expected = VecDeque::new();
@@ -125,5 +131,19 @@ mod tests {
         let actual = queue.get_playlist().await;
 
         assert_eq!(expected, actual);
+    }
+
+    #[test]
+    async fn reset() {
+        let queue = Queue::new();
+        queue.add(Track::default()).await;
+        queue.add(Track::default()).await;
+
+        queue.next().await;
+        queue.next().await;
+
+        queue.reset();
+
+        assert_eq!(0, queue.current());
     }
 }

@@ -25,6 +25,10 @@ function App() {
     setCurrentTrack(event.payload);
   })
 
+  listen('playback_stopped', async () => {
+    setPlaying(false);
+  })
+
   async function stop() {
     await invoke("stop", {});
     setPlaying(false);
