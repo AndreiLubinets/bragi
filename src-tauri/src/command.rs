@@ -1,6 +1,5 @@
 use std::{collections::VecDeque, error::Error, path::Path};
 
-use log::error;
 use tauri::{Manager, Runtime, State};
 
 use crate::player::{track::Track, Player};
@@ -51,9 +50,7 @@ pub async fn play_queue<R: Runtime>(
     player.open(path).await?;
     app.emit_all("open", ())?;
     if !player.is_playing() {
-        if let Err(err) = player.play_queue().await {
-            error!("{}", err);
-        }
+        player.play_queue().await?;
     }
 
     Ok(())
