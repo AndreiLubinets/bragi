@@ -1,50 +1,79 @@
 use log::info;
-use std::{collections::VecDeque, io::BufReader, path::Path, path::PathBuf, time::Duration};
+use std::{
+    collections::VecDeque,
+    io::BufReader,
+    path::Path,
+    sync::{
+        atomic::AtomicBool,
+        mpsc::{self, Receiver, Sender},
+    },
+    time::Duration,
+};
 
 use rodio::{OutputStream, Sink};
 use tauri::async_runtime::RwLock;
 
-use self::{playtime::Playtime, track::Track};
+use self::{playtime::Playtime, queue::Queue, track::Track};
 
 mod playtime;
+mod queue;
 pub mod track;
 
 pub struct Player {
     _stream: StreamWrapper,
     sink: Sink,
-    playlist: RwLock<VecDeque<Track>>,
+    queue: Queue,
     playtime: RwLock<Playtime>,
+    event_handler: Sender<Event>,
+    is_playing: AtomicBool,
 }
 
 impl Player {
-    pub fn new() -> anyhow::Result<Self> {
+    pub fn new() -> anyhow::Result<(Self, Receiver<Event>)> {
         let (stream, handle) = OutputStream::try_default()?;
 
         let sink = Sink::try_new(&handle)?;
+        let event_handler = mpsc::channel();
         let player = Self {
             _stream: StreamWrapper(stream),
             sink,
-            playlist: RwLock::new(VecDeque::new()),
+            queue: Queue::new(),
             playtime: RwLock::new(Playtime::default()),
+            event_handler: event_handler.0,
+            is_playing: AtomicBool::new(false),
         };
 
-        Ok(player)
+        Ok((player, event_handler.1))
     }
 
-    pub async fn open(&'_ self, path: impl Into<PathBuf>) -> anyhow::Result<()> {
-        self.sink.stop();
+    pub async fn open(&self, path: impl AsRef<Path>) -> anyhow::Result<()> {
+        self.queue.add(Track::try_new(path.as_ref())?).await;
+        Ok(())
+    }
 
-        let path_to_file: PathBuf = path.into();
-        let file = std::fs::File::open(&path_to_file)?;
-        self.add_to_playlist(&path_to_file).await?;
+    pub async fn play_queue(&self) -> anyhow::Result<()> {
+        info!("Starting a queue");
+        self.is_playing
+            .store(true, std::sync::atomic::Ordering::Relaxed);
+        while let Some(track) = self.queue.next().await {
+            if !self.is_playing() {
+                break;
+            }
 
-        self.sink.append(rodio::Decoder::new(BufReader::new(file))?);
-        self.play().await;
+            let file = std::fs::File::open(track.path())?;
+            self.sink.append(rodio::Decoder::new(BufReader::new(file))?);
+            self.event_handler
+                .send(Event::TrackChanged(self.queue.current()))?;
+            self.play().await;
 
-        info!("Playing {}", path_to_file.to_string_lossy());
+            info!("Playing {}", &track.path().to_string_lossy());
 
-        self.sink.sleep_until_end();
+            self.sink.sleep_until_end();
+            self.next().await;
+        }
+
         self.stop().await;
+        info!("Queue stopped");
 
         Ok(())
     }
@@ -55,9 +84,19 @@ impl Player {
         info!("Sink resumed");
     }
 
+    pub async fn next(&self) {
+        *self.playtime.write().await = Playtime::default();
+        self.sink.stop();
+        info!("Switching to next track");
+    }
+
     pub async fn stop(&self) {
         *self.playtime.write().await = Playtime::default();
         self.sink.stop();
+        self.is_playing
+            .store(false, std::sync::atomic::Ordering::Relaxed);
+        self.queue.reset();
+        self.event_handler.send(Event::PlaybackStopped).unwrap();
         info!("Sink stopped");
     }
 
@@ -72,19 +111,11 @@ impl Player {
     }
 
     pub fn is_playing(&self) -> bool {
-        !(self.sink.is_paused() || self.sink.empty())
+        self.is_playing.load(std::sync::atomic::Ordering::Relaxed)
     }
 
-    pub fn get_playlist(&self) -> VecDeque<Track> {
-        self.playlist.blocking_read().clone()
-    }
-
-    async fn add_to_playlist(&self, path: impl AsRef<Path>) -> anyhow::Result<()> {
-        self.playlist
-            .write()
-            .await
-            .push_front(Track::try_new(path.as_ref())?);
-        Ok(())
+    pub async fn get_playlist(&self) -> VecDeque<Track> {
+        self.queue.get_playlist().await
     }
 
     pub fn set_volume(&self, volume: impl Into<f32>) {
@@ -98,3 +129,9 @@ struct StreamWrapper(OutputStream);
 
 unsafe impl Send for StreamWrapper {}
 unsafe impl Sync for StreamWrapper {}
+
+#[derive(Clone)]
+pub enum Event {
+    TrackChanged(usize),
+    PlaybackStopped,
+}

@@ -3,6 +3,7 @@
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
+  overflow: hidden;
 
   color: #0f0f0f;
   background-color: #f6f6f6;
@@ -114,8 +115,8 @@ button {
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
-    background: rgb(17,17,40);
-    background: linear-gradient(180deg, rgba(17,17,40,1) 18%, rgba(48,49,81,1) 100%);
+    background: rgb(2,0,36);
+    background: linear-gradient(180deg, rgba(2,0,36,1) 0%, rgba(59,16,85,1) 49%, rgba(92,40,126,1) 100%);
     background-repeat: no-repeat;
     height: 100%;
   }

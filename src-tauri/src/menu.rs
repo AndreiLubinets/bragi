@@ -1,7 +1,7 @@
-use log::{error, info};
+use log::{debug, error};
 use tauri::{api::dialog, CustomMenuItem, Manager, Menu, Submenu, WindowMenuEvent};
 
-use crate::player::Player;
+use crate::command;
 
 const EXTENSIONS: [&str; 2] = ["mp3", "flac"];
 
@@ -25,17 +25,13 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                 .pick_file(move |path_buf| {
                     match path_buf {
                         Some(path) => {
-                            if let Err(err) = app.emit_all("open", ()) {
-                                error!("{}", err);
-                            }
-
                             tauri::async_runtime::spawn(async move {
-                                if let Err(err) = app.state::<Player>().open(path).await {
+                                if let Err(err) = command::play_queue(app, path).await {
                                     error!("{}", err);
-                                }
+                                };
                             });
                         }
-                        None => info!("Unable to open file"),
+                        None => debug!("Nothing selected"),
                     };
                 }),
             _ => error!("Unknown event"),

@@ -1,6 +1,6 @@
-use std::collections::VecDeque;
+use std::{collections::VecDeque, error::Error, path::Path};
 
-use tauri::State;
+use tauri::{Manager, Runtime, State};
 
 use crate::player::{track::Track, Player};
 
@@ -22,13 +22,13 @@ pub async fn play(player: State<'_, Player>) -> Result<(), ()> {
 }
 
 #[tauri::command]
-pub fn is_playing(player: State<Player>) -> bool {
-    player.is_playing()
+pub async fn is_playing(player: State<'_, Player>) -> Result<bool, ()> {
+    Ok(player.is_playing())
 }
 
 #[tauri::command]
-pub fn get_playlist(player: State<Player>) -> VecDeque<Track> {
-    player.get_playlist()
+pub async fn get_playlist(player: State<'_, Player>) -> Result<VecDeque<Track>, ()> {
+    Ok(player.get_playlist().await)
 }
 
 #[tauri::command]
@@ -39,4 +39,19 @@ pub fn set_volume(player: State<Player>, volume: f32) {
 #[tauri::command]
 pub fn playtime(player: State<Player>) -> f64 {
     player.playtime().as_secs_f64()
+}
+
+#[tauri::command]
+pub async fn play_queue<R: Runtime>(
+    app: tauri::AppHandle<R>,
+    path: impl AsRef<Path>,
+) -> Result<(), Box<dyn Error>> {
+    let player = app.state::<Player>();
+    player.open(path).await?;
+    app.emit_all("open", ())?;
+    if !player.is_playing() {
+        player.play_queue().await?;
+    }
+
+    Ok(())
 }

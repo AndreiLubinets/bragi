@@ -1,6 +1,6 @@
 .playlist {
     height: 100%;
-    margin: 5px;
+    margin: 0.5em;
     text-align: left;
     border: 2px solid black;
 }
@@ -10,7 +10,7 @@ table {
 }
 
 tr {
-    background-color: #222222;
+    background-color: #0f0f0f;
     border: 1px solid black;
     border-right: 0px;
     margin-right: 0px;
@@ -25,5 +25,5 @@ th {
 }
 
 .selected {
-    background-color: #1B1A55;
+    background-color: #672890;
 }

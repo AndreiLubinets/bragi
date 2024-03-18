@@ -2,7 +2,7 @@ import ITrack from "../interfaces/track";
 import { convertLength } from "../util/time";
 import "./Playlist.css";
 
-function Playlist({ list }: { list: ITrack[] }) {
+function Playlist({ list, currentTrack }: { list: ITrack[], currentTrack: number }) {
     return (
         <table className="playlist">
             <tr>
@@ -13,7 +13,7 @@ function Playlist({ list }: { list: ITrack[] }) {
             </tr>
             {
                 list.map((track, index) => (
-                    <tr className={index === 0 ? "selected" : ""}>
+                    <tr className={index === currentTrack ? "selected" : ""}>
                         <td>{track.title}</td>
                         <td>{track.artist}</td>
                         <td>{track.album}</td>
