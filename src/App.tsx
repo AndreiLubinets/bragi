@@ -18,11 +18,11 @@ function App() {
 
   listen('open', async () => {
     setPlayList(await getPlaylist());
-    setPlaying(true);
   })
 
   listen('track_changed', async (event: Event<number>) => {
     setCurrentTrack(event.payload);
+    setPlaying(true);
   })
 
   listen('playback_stopped', async () => {
