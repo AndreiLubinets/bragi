@@ -1,7 +1,13 @@
-# Tauri + React + Typescript
+# Bragi audio player
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+Bragi is an open-source, cross-platform and free audio player written in Rust using Tauri.
 
-## Recommended IDE Setup
+# Platforms
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- Windows
+- Linux
+
+# Build
+```bash
+npm run tauri build
+```
