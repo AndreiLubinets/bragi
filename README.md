@@ -4,8 +4,11 @@ Bragi is an open-source, cross-platform and free audio player written in Rust us
 
 # Platforms
 
-- Windows
 - Linux
+
+- Windows - planned
+- macOS - planned
+
 
 # Build
 ```bash
