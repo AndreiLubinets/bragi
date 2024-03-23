@@ -133,6 +133,7 @@ impl Player {
     }
 }
 
+#[allow(dead_code)]
 struct StreamWrapper(OutputStream);
 
 unsafe impl Send for StreamWrapper {}

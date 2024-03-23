@@ -164,6 +164,7 @@ mod tests {
         queue.add(Track::default()).await;
 
         queue.change_current(1).await.unwrap();
+        queue.next().await;
 
         assert_eq!(1, queue.current());
     }
