@@ -36,7 +36,7 @@ jobs:
         run: mkdir ./dist
 
       - name: Run Clippy
-        run: cargo clippy --all-targets --all-features
+        run: cargo clippy --all-targets --all-features -Dwarnings
         working-directory: ./src-tauri
 
   test-tauri:
