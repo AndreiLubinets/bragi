@@ -1,8 +1,14 @@
+import { invoke } from "@tauri-apps/api";
 import ITrack from "../interfaces/track";
 import { convertLength } from "../util/time";
 import "./Playlist.css";
 
 function Playlist({ list, currentTrack }: { list: ITrack[], currentTrack: number }) {
+
+    async function changeTrack(index: number) {
+        await invoke("change_track", { index });
+    }
+
     return (
         <table className="playlist">
             <tr>
@@ -13,7 +19,7 @@ function Playlist({ list, currentTrack }: { list: ITrack[], currentTrack: number
             </tr>
             {
                 list.map((track, index) => (
-                    <tr className={index === currentTrack ? "selected" : ""}>
+                    <tr className={index === currentTrack ? "selected" : ""} onDoubleClick={() => changeTrack(index)}>
                         <td>{track.title}</td>
                         <td>{track.artist}</td>
                         <td>{track.album}</td>

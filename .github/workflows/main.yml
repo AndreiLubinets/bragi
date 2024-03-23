@@ -1,8 +1,44 @@
 name: "test-on-pr"
 
-on: [pull_request]
+on: 
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 jobs:
+  rust-clippy:      
+    runs-on: ubuntu-20.04
+    steps:      
+      - uses: actions/checkout@v4
+
+      - name: Cache Rust toolchain and Cargo dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo
+            ~/.rustup
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev libasound2-dev patchelf
+
+      - name: Create dist(fixes clippy macro panic)
+        run: mkdir ./dist
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -Dwarnings
+        working-directory: ./src-tauri
+
   test-tauri:
     strategy:
       fail-fast: false
@@ -12,6 +48,16 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache Rust toolchain and Cargo dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo
+            ~/.rustup
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-
 
       - name: setup node
         uses: actions/setup-node@v4

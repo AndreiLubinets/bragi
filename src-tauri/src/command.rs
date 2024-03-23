@@ -55,3 +55,8 @@ pub async fn play_queue<R: Runtime>(
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn change_track(player: State<'_, Player>, index: usize) -> Result<(), ()> {
+    player.change_track(index).await.map_err(|_| ())
+}

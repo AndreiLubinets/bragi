@@ -51,6 +51,7 @@ fn main() {
             command::get_playlist,
             command::set_volume,
             command::playtime,
+            command::change_track,
             //command::play_queue
         ])
         .run(tauri::generate_context!())

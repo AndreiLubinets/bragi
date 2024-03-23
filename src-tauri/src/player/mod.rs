@@ -123,8 +123,17 @@ impl Player {
         self.sink.set_volume(volume_f32);
         info!("Volume changed to: {}", volume_f32)
     }
+
+    pub async fn change_track(&self, index: usize) -> anyhow::Result<()> {
+        info!("Changing track to {}", index);
+        self.queue.change_current(index).await?;
+        self.next().await;
+
+        Ok(())
+    }
 }
 
+#[allow(dead_code)]
 struct StreamWrapper(OutputStream);
 
 unsafe impl Send for StreamWrapper {}
