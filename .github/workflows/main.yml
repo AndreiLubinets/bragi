@@ -1,8 +1,27 @@
 name: "test-on-pr"
 
-on: [pull_request]
+on: 
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 jobs:
+  rust-clippy:
+    strategy:
+      fail-fast: false
+    steps:      
+      - uses: actions/checkout@v4
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features
+        working-directory: ./src-tauri
+
   test-tauri:
     strategy:
       fail-fast: false

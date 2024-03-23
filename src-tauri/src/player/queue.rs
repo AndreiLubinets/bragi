@@ -43,6 +43,16 @@ impl Queue {
         index - 1
     }
 
+    pub async fn change_current(&self, index: usize) -> anyhow::Result<()> {
+        if index >= self.tracks.lock().await.len() {
+            anyhow::bail!("Invalid index: {}", index);
+        }
+
+        self.current.store(index, Ordering::Relaxed);
+
+        Ok(())
+    }
+
     //TODO: Remove clone
     pub async fn get_playlist(&self) -> VecDeque<Track> {
         self.tracks.lock().await.clone()
@@ -145,5 +155,24 @@ mod tests {
         queue.reset();
 
         assert_eq!(0, queue.current());
+    }
+
+    #[test]
+    async fn change_current() {
+        let queue = Queue::new();
+        queue.add(Track::default()).await;
+        queue.add(Track::default()).await;
+
+        queue.change_current(1).await.unwrap();
+
+        assert_eq!(1, queue.current());
+    }
+
+    #[test]
+    async fn change_current_invalid_index() {
+        let queue = Queue::new();
+        queue.add(Track::default()).await;
+
+        assert!(queue.change_current(1).await.is_err());
     }
 }
