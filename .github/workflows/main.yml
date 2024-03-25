@@ -56,7 +56,7 @@ jobs:
           path: |
             ~/.cargo
             ~/.rustup
-            ./src-tauri/target
+            ./src-tauri/target
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-
