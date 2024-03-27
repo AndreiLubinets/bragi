@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, error::Error, path::Path};
+use std::{collections::VecDeque, error::Error, path::PathBuf};
 
 use tauri::{Manager, Runtime, State};
 
@@ -44,10 +44,14 @@ pub fn playtime(player: State<Player>) -> f64 {
 #[tauri::command]
 pub async fn play_queue<R: Runtime>(
     app: tauri::AppHandle<R>,
-    path: impl AsRef<Path>,
+    paths: Vec<PathBuf>,
 ) -> Result<(), Box<dyn Error>> {
     let player = app.state::<Player>();
-    player.open(path).await?;
+
+    for path in paths {
+        player.open(path).await?;
+    }
+
     app.emit_all("open", ())?;
     if !player.is_playing() {
         player.play_queue().await?;
