@@ -92,8 +92,7 @@ fn open_folder(path: impl AsRef<Path>) -> anyhow::Result<Vec<PathBuf>> {
     let paths = path
         .as_ref()
         .read_dir()?
-        .filter(|file| file.is_ok())
-        .map(|file| file.expect("Should not panic").path())
+        .filter_map(|file| file.ok().map(|file| file.path()))
         .filter(|path| path.extension().is_some())
         .filter(|path| {
             EXTENSIONS.contains(
