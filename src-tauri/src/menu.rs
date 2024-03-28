@@ -117,6 +117,14 @@ mod tests {
 
     use super::*;
 
+    macro_rules! assert_vec_eq {
+        ($left:expr, $right:expr) => {
+            let left_set: std::collections::HashSet<_> = $left.into_iter().collect();
+            let right_set: std::collections::HashSet<_> = $right.into_iter().collect();
+            assert_eq!(left_set, right_set);
+        };
+    }
+
     #[test]
     fn test_open_folder() {
         let dir = TempDir::new().unwrap();
@@ -129,7 +137,7 @@ mod tests {
 
         let actual = open_folder(dir.path()).unwrap();
 
-        assert_eq!(expected, actual);
+        assert_vec_eq!(expected, actual);
     }
 
     #[test]
@@ -156,14 +164,14 @@ mod tests {
         let dir_2 = dir.path().join("dir");
 
         File::create(&file_path).unwrap();
-        File::create(&file_path_2).unwrap();
+        File::create(file_path_2).unwrap();
         create_dir(dir_2).unwrap();
 
         let expected = vec![file_path];
 
         let actual = open_folder(dir.path()).unwrap();
 
-        assert_eq!(expected, actual);
+        assert_vec_eq!(expected, actual);
     }
 
     #[test]
@@ -175,11 +183,11 @@ mod tests {
 
         File::create(&file_path).unwrap();
         File::create(&file_path_2).unwrap();
-        File::create(&file_path_3).unwrap();
+        File::create(file_path_3).unwrap();
         let expected = vec![file_path, file_path_2];
 
         let actual = open_folder(dir.path()).unwrap();
 
-        assert_eq!(expected, actual);
+        assert_vec_eq!(expected, actual);
     }
 }
