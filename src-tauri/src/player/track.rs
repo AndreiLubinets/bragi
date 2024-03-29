@@ -1,5 +1,9 @@
-use std::path::PathBuf;
+use std::{
+    any::{Any, TypeId},
+    path::PathBuf,
+};
 
+use audiotags::Id3v2Tag;
 use log::{error, warn};
 use serde::Serialize;
 
@@ -27,12 +31,21 @@ impl Track {
                             .unwrap_or_default(),
                     )
                     .to_string();
+
+                let duration = if tags.type_id() == TypeId::of::<Id3v2Tag>() {
+                    mp3_duration::from_path(&path_to_file)
+                        .ok()
+                        .map(|d| d.as_secs_f64())
+                } else {
+                    tags.duration()
+                };
+
                 let track = Track {
                     title,
                     artist: tags.artist().map(|artist| artist.to_string()),
                     album: tags.album().map(|album| album.title.to_string()),
+                    length: duration,
                     path: path_to_file,
-                    length: tags.duration(),
                 };
 
                 Ok(track)
@@ -85,7 +98,7 @@ mod tests {
     use super::Track;
 
     #[test]
-    fn try_new_track() {
+    fn try_new_track_mp3() {
         let dir = TempDir::new().unwrap();
         let file_path = dir.path().join("track.mp3");
         let mut file = File::create(&file_path).unwrap();
@@ -95,7 +108,7 @@ mod tests {
             artist: Some("artist".to_owned()),
             album: Some("album".to_owned()),
             path: file_path.clone(),
-            //TODO - Redo test to account for length
+            //Duration is ignored
             length: None,
         };
 
@@ -111,7 +124,33 @@ mod tests {
     }
 
     #[test]
-    fn try_new_track_empty_tags() {
+    fn try_new_track_flac() {
+        let dir = TempDir::new().unwrap();
+        let file_path = dir.path().join("track.flac");
+        let mut file = File::create(&file_path).unwrap();
+
+        let expected = Track {
+            title: "title".to_owned(),
+            artist: Some("artist".to_owned()),
+            album: Some("album".to_owned()),
+            path: file_path.clone(),
+            //Duration is ignored
+            length: None,
+        };
+
+        let mut tags = audiotags::FlacTag::new();
+        tags.set_title(&expected.title);
+        tags.set_artist(&expected.artist.clone().unwrap());
+        tags.set_album(Album::with_title(&expected.album.clone().unwrap()));
+        tags.write_to(&mut file).unwrap();
+
+        let actual = Track::try_new(&file_path).unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn try_new_track_empty_tags_mp3() {
         let dir = TempDir::new().unwrap();
         let file_path = dir.path().join("track.mp3");
         let mut file = File::create(&file_path).unwrap();
@@ -125,6 +164,28 @@ mod tests {
         };
 
         let mut tags = audiotags::Id3v2Tag::new();
+        tags.write_to(&mut file).unwrap();
+
+        let actual = Track::try_new(&file_path).unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn try_new_track_empty_tags_flac() {
+        let dir = TempDir::new().unwrap();
+        let file_path = dir.path().join("track.flac");
+        let mut file = File::create(&file_path).unwrap();
+
+        let expected = Track {
+            title: "track".to_owned(),
+            artist: None,
+            album: None,
+            path: file_path.clone(),
+            length: None,
+        };
+
+        let mut tags = audiotags::FlacTag::new();
         tags.write_to(&mut file).unwrap();
 
         let actual = Track::try_new(&file_path).unwrap();
