@@ -87,7 +87,7 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
 /// use bragi::menu::open_folder;
 /// use std::path::Path;
 /// let path = Path::new("/path/to/folder");
-/// let files = open_folder(path);
+/// let files = open_folder(path).unwrap();
 fn open_folder(path: impl AsRef<Path>) -> anyhow::Result<Vec<PathBuf>> {
     let paths = path
         .as_ref()
@@ -98,7 +98,7 @@ fn open_folder(path: impl AsRef<Path>) -> anyhow::Result<Vec<PathBuf>> {
             EXTENSIONS.contains(
                 &path
                     .extension()
-                    .expect("Should not panic")
+                    .unwrap_or_default()
                     .to_str()
                     .unwrap_or_default(),
             )
