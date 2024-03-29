@@ -268,6 +268,7 @@ dependencies = [
  "anyhow",
  "audiotags",
  "log",
+ "mp3-duration",
  "rodio",
  "serde",
  "serde_json",
@@ -1884,6 +1885,15 @@ checksum = "e7810e0be55b428ada41041c41f32c9f1a42817901b4ccf45fa3d4b6561e74c7"
 dependencies = [
  "adler",
  "simd-adler32",
+]
+
+[[package]]
+name = "mp3-duration"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "348bdc7300502f0801e5b57c448815713cd843b744ef9bda252a2698fdf90a0f"
+dependencies = [
+ "thiserror",
 ]
 
 [[package]]

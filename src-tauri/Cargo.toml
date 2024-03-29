@@ -23,6 +23,7 @@ audiotags = "*"
 anyhow = "*"
 log = "*"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+mp3-duration = "*"
 
 [dev-dependencies]
 temp-dir = "*"
