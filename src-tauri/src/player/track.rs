@@ -1,10 +1,8 @@
-use std::{
-    any::{Any, TypeId},
-    path::PathBuf,
-};
+use std::path::{Path, PathBuf};
 
+use anyhow::bail;
 use audiotags::Id3v2Tag;
-use log::{error, warn};
+use log::{debug, error, warn};
 use serde::Serialize;
 
 #[derive(Clone, Serialize, Default, Debug, PartialEq)]
@@ -19,6 +17,11 @@ pub struct Track {
 impl Track {
     pub fn try_new(path: impl Into<PathBuf>) -> anyhow::Result<Self> {
         let path_to_file: PathBuf = path.into();
+
+        if !Path::exists(&path_to_file) {
+            bail!("File does not exists: {}", path_to_file.to_string_lossy())
+        }
+
         let track = match audiotags::Tag::new().read_from_path(&path_to_file) {
             Ok(tags) => {
                 let title = tags
@@ -32,8 +35,10 @@ impl Track {
                     )
                     .to_string();
 
-                let duration = if tags.type_id() == TypeId::of::<Id3v2Tag>() {
+                let duration = if tags.to_any().downcast_ref::<Id3v2Tag>().is_some() {
+                    debug!("Id3v2Tag found, using mp3_duration for duration");
                     mp3_duration::from_path(&path_to_file)
+                        .inspect_err(|err| error!("{}", err))
                         .ok()
                         .map(|d| d.as_secs_f64())
                 } else {
@@ -48,32 +53,27 @@ impl Track {
                     path: path_to_file,
                 };
 
+                Ok::<Track, anyhow::Error>(track)
+            }
+            Err(err) => {
+                error!(
+                    "Unable to read track metadata for {}: {}",
+                    &path_to_file.display(),
+                    err
+                );
+                let track = Track {
+                    title: path_to_file
+                        .file_stem()
+                        .unwrap_or_default()
+                        .to_str()
+                        .unwrap_or_default()
+                        .to_string(),
+                    path: path_to_file,
+                    ..Default::default()
+                };
+
                 Ok(track)
             }
-            Err(err) => match err {
-                audiotags::Error::Mp4TagError(_)
-                | audiotags::Error::FlacTagError(_)
-                | audiotags::Error::Id3TagError(_) => {
-                    error!(
-                        "Unable to read track metadata for {}: {}",
-                        &path_to_file.display(),
-                        err
-                    );
-                    let track = Track {
-                        title: path_to_file
-                            .file_stem()
-                            .unwrap_or_default()
-                            .to_str()
-                            .unwrap_or_default()
-                            .to_string(),
-                        path: path_to_file,
-                        ..Default::default()
-                    };
-
-                    Ok(track)
-                }
-                _ => Err(err),
-            },
         }?;
 
         if track.length.is_none() {
@@ -85,6 +85,11 @@ impl Track {
 
     pub fn path(&self) -> &PathBuf {
         &self.path
+    }
+
+    #[allow(dead_code)]
+    pub fn length(&self) -> Option<f64> {
+        self.length
     }
 }
 
@@ -109,7 +114,7 @@ mod tests {
             album: Some("album".to_owned()),
             path: file_path.clone(),
             //Duration is ignored
-            length: None,
+            length: Some(0.0),
         };
 
         let mut tags = audiotags::Id3v2Tag::new();
@@ -160,7 +165,7 @@ mod tests {
             artist: None,
             album: None,
             path: file_path.clone(),
-            length: None,
+            length: Some(0.0),
         };
 
         let mut tags = audiotags::Id3v2Tag::new();
@@ -213,8 +218,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn try_new_track_file_not_found() {
-        Track::try_new(PathBuf::from_str("track").unwrap()).unwrap();
+        assert!(Track::try_new(PathBuf::from_str("track.mp3").unwrap()).is_err());
     }
 }
