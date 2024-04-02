@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::bail;
 use audiotags::Id3v2Tag;
+use audiotags::{MimeType, Picture};
 use log::{debug, error, warn};
 use serde::Serialize;
 
@@ -90,6 +91,20 @@ impl Track {
     #[allow(dead_code)]
     pub fn length(&self) -> Option<f64> {
         self.length
+    }
+}
+
+pub struct AlbumCover {
+    pub data: Vec<u8>,
+    pub mime: MimeType,
+}
+
+impl From<Picture<'_>> for AlbumCover {
+    fn from(value: Picture) -> Self {
+        AlbumCover {
+            data: value.data.to_owned(),
+            mime: value.mime_type,
+        }
     }
 }
 

@@ -1,5 +1,4 @@
 .playlist {
-    height: 100%;
     margin: 0.5em;
     text-align: left;
 }
@@ -12,7 +11,7 @@ table {
 
 tr {
     height: 2em;
-    background-color: #0f0f0f;
+    background-color: #0f0f0f98;
     border-right: 0px;
     margin-right: 0px;
     padding-bottom: 20px;

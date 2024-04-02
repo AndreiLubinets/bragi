@@ -28,11 +28,11 @@ impl Queue {
     }
 
     pub async fn next(&self) -> Option<Track> {
-        let guard = self.tracks.lock().await;
-
-        let track = guard.get(self.current.fetch_add(1, Ordering::Relaxed));
-
-        track.cloned()
+        self.tracks
+            .lock()
+            .await
+            .get(self.current.fetch_add(1, Ordering::Relaxed))
+            .cloned()
     }
 
     pub fn current(&self) -> usize {
@@ -51,6 +51,10 @@ impl Queue {
         self.current.store(index, Ordering::Relaxed);
 
         Ok(())
+    }
+
+    pub async fn current_track(&self) -> Option<Track> {
+        self.tracks.lock().await.get(self.current()).cloned()
     }
 
     //TODO: Remove clone

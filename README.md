@@ -12,5 +12,6 @@ Bragi is an open-source, cross-platform and free audio player written in Rust us
 
 # Build
 ```bash
+npm i
 npm run tauri build
 ```

@@ -1,3 +1,4 @@
+use audiotags::Picture;
 use log::info;
 use std::{
     collections::VecDeque,
@@ -10,10 +11,15 @@ use std::{
     time::Duration,
 };
 
+use anyhow::anyhow;
 use rodio::{OutputStream, Sink};
 use tauri::async_runtime::RwLock;
 
-use self::{playtime::Playtime, queue::Queue, track::Track};
+use self::{
+    playtime::Playtime,
+    queue::Queue,
+    track::{AlbumCover, Track},
+};
 
 mod playtime;
 mod queue;
@@ -130,6 +136,19 @@ impl Player {
         self.next().await;
 
         Ok(())
+    }
+
+    pub async fn get_album_cover(&self) -> anyhow::Result<AlbumCover> {
+        let track = self
+            .queue
+            .current_track()
+            .await
+            .ok_or(anyhow!("No current track"))?;
+        let tags = audiotags::Tag::new().read_from_path(track.path())?;
+
+        tags.album_cover()
+            .ok_or(anyhow!("No album cover"))
+            .map(Picture::into)
     }
 }
 
