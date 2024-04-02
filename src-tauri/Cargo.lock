@@ -91,9 +91,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.79"
+version = "1.0.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "080e9890a082662b09c1ad45f567faeeb47f22b5fb23895fbe1e651e718e25ca"
+checksum = "0952808a6c2afd1aa8947271f3a60f1a6763c7b912d210184c5149b5cf147247"
 
 [[package]]
 name = "arrayvec"
@@ -127,11 +127,11 @@ dependencies = [
 
 [[package]]
 name = "audiotags"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f47bdf1acc4fa4113f8aa72bb3bfe62a61443c61d0d997b723ba61ce102c79b"
+checksum = "44e797ce0164cf599c71f2c3849b56301d96a3dc033544588e875686b050ed39"
 dependencies = [
- "audiotags-dev-macro",
+ "audiotags-macro",
  "id3",
  "metaflac",
  "mp4ameta",
@@ -140,10 +140,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "audiotags-dev-macro"
-version = "0.1.4"
+name = "audiotags-macro"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b79298591161f312f06327df7963063ee07466be303dcc3084a44ec293cb36e"
+checksum = "8eaa9b2312fc01f7291f3b7b0f52ed08b1c0177c96a2e696ab55695cc4d06889"
 
 [[package]]
 name = "autocfg"
@@ -263,7 +263,7 @@ dependencies = [
 
 [[package]]
 name = "bragi"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "audiotags",
@@ -272,7 +272,6 @@ dependencies = [
  "rodio",
  "serde",
  "serde_json",
- "serde_with",
  "tauri",
  "tauri-build",
  "tauri-plugin-log",
@@ -3552,9 +3551,9 @@ dependencies = [
 
 [[package]]
 name = "temp-dir"
-version = "0.1.12"
+version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd16aa9ffe15fe021c6ee3766772132c6e98dfa395a167e16864f61a9cfb71d6"
+checksum = "1f227968ec00f0e5322f9b8173c7a0cbcff6181a0a5b28e9892491c286277231"
 
 [[package]]
 name = "tempfile"
@@ -3664,9 +3663,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.35.1"
+version = "1.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c89b4efa943be685f629b149f53829423f8f5531ea21249408e8e2f8671ec104"
+checksum = "1adbebffeca75fcfd058afa480fb6c0b81e165a0323f9c9d39c9697e37c46787"
 dependencies = [
  "backtrace",
  "bytes",
