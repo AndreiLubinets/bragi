@@ -5,12 +5,12 @@
 
 table {
     font-weight: normal;
-    border-collapse: separate;
+    border-collapse: collapse;
     border-spacing: 0 0.5em;
 }
 
 tr {
-    height: 2em;
+    height: 2.5em;
     background-color: #0f0f0f98;
     border-right: 0px;
     margin-right: 0px;

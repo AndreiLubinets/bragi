@@ -20,7 +20,7 @@ const TrackInfo = ({ track }: { track: ITrack | undefined }) => {
                     URL.revokeObjectURL(albumCover);
                 };
             } catch (err) {
-                console.log(err);
+                setAlbumCover('');
             }
         }
         getAlbumCover();

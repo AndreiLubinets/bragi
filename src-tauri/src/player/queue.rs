@@ -180,4 +180,19 @@ mod tests {
 
         assert!(queue.change_current(1).await.is_err());
     }
+
+    #[test]
+    async fn current_track() {
+        let queue = Queue::new();
+        queue.add(Track::default()).await;
+
+        assert_eq!(Track::default(), queue.current_track().await.unwrap());
+    }
+
+    #[test]
+    async fn current_track_empty_queue() {
+        let queue = Queue::new();
+
+        assert_eq!(None, queue.current_track().await);
+    }
 }

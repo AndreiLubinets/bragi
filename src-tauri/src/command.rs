@@ -3,7 +3,7 @@ use std::{collections::VecDeque, error::Error, path::PathBuf};
 use log::warn;
 use tauri::{Manager, Runtime, State};
 
-use crate::player::{track::Track, Player};
+use crate::player::{track::AlbumCover, track::Track, Player};
 
 #[tauri::command]
 pub async fn stop(player: State<'_, Player>) -> Result<(), ()> {
@@ -67,11 +67,10 @@ pub async fn change_track(player: State<'_, Player>, index: usize) -> Result<(),
 }
 
 #[tauri::command]
-pub async fn get_album_cover(player: State<'_, Player>) -> Result<Vec<u8>, ()> {
+pub async fn get_album_cover(player: State<'_, Player>) -> Result<AlbumCover, ()> {
     player
         .get_album_cover()
         .await
-        .map(|cover| cover.data)
         .inspect_err(|err| warn!("{}", err))
         .map_err(|_| ())
 }

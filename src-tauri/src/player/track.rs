@@ -1,8 +1,8 @@
 use std::path::{Path, PathBuf};
 
-use anyhow::bail;
+use anyhow::{anyhow, bail};
 use audiotags::Id3v2Tag;
-use audiotags::{MimeType, Picture};
+use audiotags::Picture;
 use log::{debug, error, warn};
 use serde::Serialize;
 
@@ -88,23 +88,26 @@ impl Track {
         &self.path
     }
 
+    pub fn album_cover(&self) -> anyhow::Result<AlbumCover> {
+        audiotags::Tag::new()
+            .read_from_path(self.path())?
+            .album_cover()
+            .ok_or(anyhow!("No album cover found"))
+            .map(AlbumCover::from)
+    }
+
     #[allow(dead_code)]
     pub fn length(&self) -> Option<f64> {
         self.length
     }
 }
 
-pub struct AlbumCover {
-    pub data: Vec<u8>,
-    pub mime: MimeType,
-}
+#[derive(Serialize)]
+pub struct AlbumCover(Vec<u8>);
 
 impl From<Picture<'_>> for AlbumCover {
     fn from(value: Picture) -> Self {
-        AlbumCover {
-            data: value.data.to_owned(),
-            mime: value.mime_type,
-        }
+        AlbumCover(value.data.to_owned())
     }
 }
 
@@ -112,7 +115,7 @@ impl From<Picture<'_>> for AlbumCover {
 mod tests {
     use std::{fs::File, path::PathBuf, str::FromStr};
 
-    use audiotags::{Album, AudioTagEdit, AudioTagWrite};
+    use audiotags::{Album, AudioTagEdit, AudioTagWrite, MimeType, Picture};
     use temp_dir::TempDir;
 
     use super::Track;
@@ -235,5 +238,37 @@ mod tests {
     #[test]
     fn try_new_track_file_not_found() {
         assert!(Track::try_new(PathBuf::from_str("track.mp3").unwrap()).is_err());
+    }
+
+    #[test]
+    fn album_cover() {
+        let dir = TempDir::new().unwrap();
+        let file_path = dir.path().join("track.mp3");
+        let album_cover_buffer: Vec<u8> = vec![1, 2, 3];
+
+        let mut file = File::create(&file_path).unwrap();
+
+        let mut tags = audiotags::Id3v2Tag::new();
+        tags.set_album_cover(Picture {
+            mime_type: MimeType::Jpeg,
+            data: &album_cover_buffer,
+        });
+
+        tags.write_to(&mut file).unwrap();
+
+        let actual = Track::try_new(&file_path).unwrap();
+
+        assert_eq!(album_cover_buffer, actual.album_cover().unwrap().0);
+    }
+
+    #[test]
+    fn album_cover_not_found() {
+        let dir = TempDir::new().unwrap();
+        let file_path = dir.path().join("track.mp3");
+        let _ = File::create(&file_path).unwrap();
+
+        let actual = Track::try_new(&file_path).unwrap();
+
+        assert!(actual.album_cover().is_err());
     }
 }

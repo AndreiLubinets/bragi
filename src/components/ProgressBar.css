@@ -1,15 +1,9 @@
-.progress input[type="range"] {
-    --range-progress: 0;
+.progress progress {
+    accent-color: #606cff;
     pointer-events: none;
-    width: auto;
 }
 
-.progress input[type="range"]::before {
-    /* ... */
-    background: #f50;
-    width: var(--range-progress);
-    /* ... */
-}
+
 
 .progress {
     margin: 0.5em;

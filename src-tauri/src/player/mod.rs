@@ -1,4 +1,3 @@
-use audiotags::Picture;
 use log::info;
 use std::{
     collections::VecDeque,
@@ -139,16 +138,11 @@ impl Player {
     }
 
     pub async fn get_album_cover(&self) -> anyhow::Result<AlbumCover> {
-        let track = self
-            .queue
+        self.queue
             .current_track()
             .await
-            .ok_or(anyhow!("No current track"))?;
-        let tags = audiotags::Tag::new().read_from_path(track.path())?;
-
-        tags.album_cover()
-            .ok_or(anyhow!("No album cover"))
-            .map(Picture::into)
+            .ok_or(anyhow!("No current track"))?
+            .album_cover()
     }
 }
 
