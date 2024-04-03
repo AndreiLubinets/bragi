@@ -10,10 +10,15 @@ use std::{
     time::Duration,
 };
 
+use anyhow::anyhow;
 use rodio::{OutputStream, Sink};
 use tauri::async_runtime::RwLock;
 
-use self::{playtime::Playtime, queue::Queue, track::Track};
+use self::{
+    playtime::Playtime,
+    queue::Queue,
+    track::{AlbumCover, Track},
+};
 
 mod playtime;
 mod queue;
@@ -130,6 +135,14 @@ impl Player {
         self.next().await;
 
         Ok(())
+    }
+
+    pub async fn get_album_cover(&self) -> anyhow::Result<AlbumCover> {
+        self.queue
+            .current_track()
+            .await
+            .ok_or(anyhow!("No current track"))?
+            .album_cover()
     }
 }
 

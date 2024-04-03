@@ -52,7 +52,7 @@ fn main() {
             command::set_volume,
             command::playtime,
             command::change_track,
-            //command::play_queue
+            command::get_album_cover //command::play_queue
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

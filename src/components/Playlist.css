@@ -1,18 +1,17 @@
 .playlist {
-    height: 100%;
     margin: 0.5em;
     text-align: left;
 }
 
 table {
     font-weight: normal;
-    border-collapse: separate;
+    border-collapse: collapse;
     border-spacing: 0 0.5em;
 }
 
 tr {
-    height: 2em;
-    background-color: #0f0f0f;
+    height: 2.5em;
+    background-color: #0f0f0f98;
     border-right: 0px;
     margin-right: 0px;
     padding-bottom: 20px;

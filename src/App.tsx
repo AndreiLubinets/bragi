@@ -10,10 +10,11 @@ import ITrack from "./interfaces/track";
 import { Event, listen } from "@tauri-apps/api/event";
 import Volume from "./components/Volume";
 import ProgressBar from "./components/ProgressBar";
+import TrackInfo from "./components/TrackInfo";
 
 function App() {
   const [playList, setPlayList] = useState<ITrack[]>([]);
-  const [currentTrack, setCurrentTrack] = useState(0);
+  const [currentTrack, setCurrentTrack] = useState(Number);
   const [playing, setPlaying] = useState(false);
 
   listen('open', async () => {
@@ -50,19 +51,22 @@ function App() {
 
   return (
     <div className="container">
-      <div className="controls">
-        <button className="control-button" onClick={!playing ? () => play() : () => pause()}>
-          <img src={!playing ? play_icon : pause_icon} />
-        </button>
-        <button className="control-button" onClick={() => stop()}><img src={stop_icon} /></button>
-        <Volume></Volume>
-      </div>
+      <div className="container">
+        <div className="controls">
+          <button className="control-button" onClick={!playing ? () => play() : () => pause()}>
+            <img src={!playing ? play_icon : pause_icon} />
+          </button>
+          <button className="control-button" onClick={() => stop()}><img src={stop_icon} /></button>
+          <Volume></Volume>
+        </div>
 
-      <ProgressBar length={playList[currentTrack] ? playList[currentTrack].length : 0}></ProgressBar>
+        <ProgressBar length={playList[currentTrack] ? playList[currentTrack].length : 0}></ProgressBar>
 
-      <Playlist list={playList} currentTrack={currentTrack}></Playlist>
+        <Playlist list={playList} currentTrack={currentTrack}></Playlist>
 
-    </div >
+      </div >
+      <TrackInfo track={playList[currentTrack]}></TrackInfo>
+    </div>
   );
 }
 
