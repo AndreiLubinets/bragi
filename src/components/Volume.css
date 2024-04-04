@@ -2,6 +2,7 @@ input[type="range"] {
     padding: 0;
     margin: 10px;
     visibility: hidden;
+    accent-color: #606cff;
 }
 
 input[type="range"].visible {

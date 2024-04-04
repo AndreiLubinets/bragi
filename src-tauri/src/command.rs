@@ -1,8 +1,9 @@
 use std::{collections::VecDeque, error::Error, path::PathBuf};
 
+use log::warn;
 use tauri::{Manager, Runtime, State};
 
-use crate::player::{track::Track, Player};
+use crate::player::{track::AlbumCover, track::Track, Player};
 
 #[tauri::command]
 pub async fn stop(player: State<'_, Player>) -> Result<(), ()> {
@@ -63,4 +64,13 @@ pub async fn play_queue<R: Runtime>(
 #[tauri::command]
 pub async fn change_track(player: State<'_, Player>, index: usize) -> Result<(), ()> {
     player.change_track(index).await.map_err(|_| ())
+}
+
+#[tauri::command]
+pub async fn get_album_cover(player: State<'_, Player>) -> Result<AlbumCover, ()> {
+    player
+        .get_album_cover()
+        .await
+        .inspect_err(|err| warn!("{}", err))
+        .map_err(|_| ())
 }
