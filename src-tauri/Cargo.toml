@@ -1,6 +1,6 @@
 [package]
 name = "bragi"
-version = "0.0.1"
+version = "0.1.0"
 description = "A music player"
 authors = ["Andrei Lubinets"]
 license = "GPL-3.0"
@@ -16,17 +16,16 @@ tauri-build = { version = "1.5", features = [] }
 tauri = { version = "1.5", features = [ "dialog-open", "shell-open"] }
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.111"
-serde_with = "*"
-tokio = { version = "*", features = ["rt", "macros"] }
-rodio = "*"
-audiotags = "*"
-anyhow = "*"
-log = "*"
+tokio = { version = "1.37", features = ["rt", "macros"] }
+rodio = "0.17"
+audiotags = "0.5"
+anyhow = "1.0.81"
+log = "0.4"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
-mp3-duration = "*"
+mp3-duration = "0.1.10"
 
 [dev-dependencies]
-temp-dir = "*"
+temp-dir = "0.1.13"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
