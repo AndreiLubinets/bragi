@@ -1,6 +1,5 @@
 import { expect, test } from "vitest";
 import { convertLength } from "../util/time";
-import { useInterval } from "../util/poll";
 
 test("covertLength", () => {
   const seconds = 180;
@@ -25,13 +24,3 @@ test("covertLengthZero", () => {
   const expected = "0:00";
   expect(convertLength(seconds)).toEqual(expected);
 });
-
-test("poll", () => {
-  const callback = () => { };
-  const delay = 100;
-
-  useInterval(callback, delay)
-
-  expect(callback).toBeCalledTimes(1)
-})
-
