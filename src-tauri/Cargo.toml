@@ -17,7 +17,8 @@ tauri = { version = "1.5", features = [ "dialog-open", "shell-open"] }
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.111"
 tokio = { version = "1.37", features = ["rt", "macros"] }
-rodio = "0.17"
+#TODO: change to stable
+rodio = { git = "https://github.com/RustAudio/rodio", branch = "master"}
 audiotags = "0.5"
 anyhow = "1.0.81"
 log = "0.4"

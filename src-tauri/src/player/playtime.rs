@@ -1,6 +1,16 @@
 use log::debug;
 use std::time::{Duration, Instant};
 
+/// Tracks the playtime. Use `play` and `pause` to start and stop the playtime. Use `time` to get the duration of the playtime.
+///
+/// # Examples
+/// ```rust
+/// use bragi::player::playtime::Playtime;
+/// let mut playtime = Playtime::default();
+/// playtime.play();
+/// playtime.pause();
+/// let time = playtime.time();
+/// ```
 #[derive(Clone, Default)]
 pub struct Playtime {
     start_time: Option<Instant>,
@@ -9,11 +19,30 @@ pub struct Playtime {
 }
 
 impl Playtime {
+    /// Pauses the playtime. Use `play` to start it again.
+    ///
+    ///
+    /// # Examples
+    /// ```rust
+    /// use bragi::player::playtime::Playtime;
+    /// let mut playtime = Playtime::default();
+    /// playtime.pause();
+    /// playtime.play();
+    /// ```
     pub fn pause(&mut self) {
         self.pause_time = Some(Instant::now());
         debug!("Paused at: {:?}", self.pause_time);
     }
 
+    /// Starts the playtime. Use `pause` to stop it.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use bragi::player::playtime::Playtime;
+    /// let mut playtime = Playtime::default();
+    /// playtime.play();
+    /// playtime.pause();
+    /// ```
     pub fn play(&mut self) {
         if self.start_time.is_none() {
             self.start_time = Some(Instant::now());
@@ -25,6 +54,15 @@ impl Playtime {
         }
     }
 
+    /// Returns the duration of the playtime.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use bragi::player::playtime::Playtime;
+    /// let mut playtime = Playtime::default();
+    /// playtime.play();
+    /// let time = playtime.time();
+    /// ```
     pub fn time(&self) -> Duration {
         match self.start_time {
             Some(start) => match self.pause_time {
@@ -33,6 +71,10 @@ impl Playtime {
             },
             None => Duration::ZERO,
         }
+    }
+
+    pub fn change(&mut self, time: Duration) {
+        self.pause_duration += time;
     }
 }
 
