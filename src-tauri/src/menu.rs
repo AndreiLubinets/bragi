@@ -38,7 +38,7 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                     match path_bufs {
                         Some(paths) => {
                             tauri::async_runtime::spawn(async move {
-                                if let Err(err) = command::play_queue(app, paths).await {
+                                if let Err(err) = command::play_queue(&app, paths).await {
                                     error!("{}", err);
                                 };
                             });
@@ -58,7 +58,7 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                                 return;
                             }
 
-                            if let Err(err) = command::play_queue(app, paths).await {
+                            if let Err(err) = command::play_queue(&app, paths).await {
                                 error!("{}", err);
                             };
                         });

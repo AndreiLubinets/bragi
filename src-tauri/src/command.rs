@@ -44,7 +44,7 @@ pub fn playtime(player: State<Player>) -> f64 {
 
 #[tauri::command]
 pub async fn play_queue<R: Runtime>(
-    app: tauri::AppHandle<R>,
+    app: &tauri::AppHandle<R>,
     paths: Vec<PathBuf>,
 ) -> Result<(), Box<dyn Error>> {
     let player = app.state::<Player>();
