@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug, info};
 use std::{
     collections::VecDeque,
     io::BufReader,
@@ -126,7 +126,7 @@ impl Player {
     pub fn set_volume(&self, volume: impl Into<f32>) {
         let volume_f32: f32 = volume.into();
         self.sink.set_volume(volume_f32);
-        info!("Volume changed to: {}", volume_f32)
+        debug!("Volume changed to: {}", volume_f32)
     }
 
     pub async fn change_track(&self, index: usize) -> anyhow::Result<()> {
