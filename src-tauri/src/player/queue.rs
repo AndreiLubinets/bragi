@@ -56,7 +56,8 @@ impl Queue {
     }
 
     pub async fn change_to_previous(&self) {
-        //requies to substract 2 for next() method to return previous
+        //requies to substract 2 so the call of next() method 
+        //during iteration will return previous track
         self.current.saturating_sub(2);
     }
 
