@@ -74,3 +74,17 @@ pub async fn get_album_cover(player: State<'_, Player>) -> Result<AlbumCover, ()
         .inspect_err(|err| warn!("{}", err))
         .map_err(|_| ())
 }
+
+#[tauri::command]
+pub async fn next_track(player: State<'_, Player>) -> Result<(), ()> {
+    player.next().await;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn previous_track(player: State<'_, Player>) -> Result<(), ()> {
+    player.previous().await;
+
+    Ok(())
+}
