@@ -95,6 +95,13 @@ impl Player {
         info!("Switching to next track");
     }
 
+    pub async fn previous(&self) {
+        *self.playtime.write().await = Playtime::default();
+        self.queue.change_to_previous().await;
+        self.sink.stop();
+        info!("Switching to previous track");
+    }
+
     pub async fn stop(&self) {
         *self.playtime.write().await = Playtime::default();
         self.sink.stop();
