@@ -4,6 +4,8 @@ import { } from "@tauri-apps/api/window"
 import play_icon from './assets/play.svg';
 import stop_icon from './assets/stop.svg';
 import pause_icon from './assets/pause.svg';
+import previous_icon from './assets/previous.svg';
+import next_icon from './assets/next.svg';
 
 import Playlist from "./components/Playlist";
 import ITrack from "./interfaces/track";
@@ -49,6 +51,14 @@ function App() {
     return await invoke("get_playlist", {});
   }
 
+  async function next() {
+    await invoke("next_track", {});
+  }
+
+  async function previous() {
+    await invoke("previous_track", {});
+  }
+
   return (
     <div className="container">
       <div className="container">
@@ -57,6 +67,8 @@ function App() {
             <img src={!playing ? play_icon : pause_icon} />
           </button>
           <button className="control-button" onClick={() => stop()}><img src={stop_icon} /></button>
+          <button className="control-button" onClick={() => previous()}><img src={previous_icon} /></button>
+          <button className="control-button" onClick={() => next()}><img src={next_icon} /></button>
           <Volume></Volume>
         </div>
 

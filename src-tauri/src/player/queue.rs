@@ -7,6 +7,8 @@ use std::{
 use log::info;
 use tauri::async_runtime::Mutex;
 
+use crate::util::AtomicSub;
+
 use super::track::Track;
 
 pub struct Queue {
@@ -51,6 +53,11 @@ impl Queue {
         self.current.store(index, Ordering::Relaxed);
 
         Ok(())
+    }
+
+    pub async fn change_to_previous(&self) {
+        //requies to substract 2 for next() method to return previous
+        self.current.saturating_sub(2);
     }
 
     pub async fn current_track(&self) -> Option<Track> {
@@ -194,5 +201,46 @@ mod tests {
         let queue = Queue::new();
 
         assert_eq!(None, queue.current_track().await);
+    }
+
+    #[test]
+    async fn change_to_previous_test() {
+        let queue = Queue::new();
+        queue.add(Track::default()).await;
+        queue.add(Track::default()).await;
+
+        queue.next().await;
+        queue.next().await;
+        let first_index = queue.current();
+
+        queue.change_to_previous().await;
+
+        let second_index = queue.current();
+
+        assert_eq!(1, first_index);
+        assert_eq!(0, second_index);
+    }
+
+    #[test]
+    async fn change_to_previous_invalid_index() {
+        let queue = Queue::new();
+        queue.add(Track::default()).await;
+
+        queue.next().await;
+        queue.change_to_previous().await;
+
+        let index = queue.current();
+
+        assert_eq!(0, index);
+    }
+
+    #[test]
+    async fn change_to_previous_empty_queue() {
+        let queue = Queue::new();
+
+        queue.change_to_previous().await;
+        let index = queue.current();
+
+        assert_eq!(0, index);
     }
 }

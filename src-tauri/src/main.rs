@@ -9,6 +9,7 @@ use tauri::{async_runtime, Manager};
 mod command;
 mod menu;
 mod player;
+mod util;
 
 fn main() {
     tauri::Builder::default()
@@ -52,7 +53,9 @@ fn main() {
             command::set_volume,
             command::playtime,
             command::change_track,
-            command::get_album_cover //command::play_queue
+            command::get_album_cover,
+            command::next_track,
+            command::previous_track //command::play_queue
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
