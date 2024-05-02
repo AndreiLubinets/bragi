@@ -11,7 +11,7 @@ table {
 
 tr {
     height: 2.5em;
-    background-color: #0f0f0f98;
+    background-color: #3b4252;
     border-right: 0px;
     margin-right: 0px;
     padding-bottom: 20px;
@@ -20,12 +20,12 @@ tr {
 }
 
 th {
-    background-color: #0f0f0f;
+    background-color: #2e3440;
     border: 1px solid black;
     border-right: 0px;
     margin-right: 0px;
 }
 
 .selected {
-    background-color: #672890;
+    background-color: #5e81ac;
 }
