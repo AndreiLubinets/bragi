@@ -98,7 +98,7 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
             }
             "play" => {
                 let _ = tauri::async_runtime::spawn(async move {
-                    command::play(app.state::<Player>()).await;
+                    command::play(app.state::<Player>()).await.unwrap();
                 });
             }
             "pause" => {
@@ -106,7 +106,19 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
             }
             "stop" => {
                 let _ = tauri::async_runtime::spawn(async move {
-                    command::stop(app.state::<Player>()).await;
+                    command::stop(app.state::<Player>()).await.unwrap();
+                });
+            }
+            "previous" => {
+                let _ = tauri::async_runtime::spawn(async move {
+                    command::previous_track(app.state::<Player>())
+                        .await
+                        .unwrap();
+                });
+            }
+            "next" => {
+                let _ = tauri::async_runtime::spawn(async move {
+                    command::next_track(app.state::<Player>()).await.unwrap();
                 });
             }
             _ => error!("Unknown event"),
