@@ -97,30 +97,37 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                 })
             }
             "play" => {
-                let _ = tauri::async_runtime::spawn(async move {
-                    command::play(app.state::<Player>()).await.unwrap();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = command::play(app.state::<Player>()).await {
+                        error!("{}", err);
+                    }
                 });
             }
             "pause" => {
                 command::pause(app.state::<Player>());
             }
             "stop" => {
-                let _ = tauri::async_runtime::spawn(async move {
-                    command::stop(app.state::<Player>()).await.unwrap();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = command::stop(app.state::<Player>()).await {
+                        error!("{}", err);
+                    }
                 });
             }
             "previous" => {
-                let _ = tauri::async_runtime::spawn(async move {
-                    command::previous_track(app.state::<Player>())
-                        .await
-                        .unwrap();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = command::previous_track(app.state::<Player>()).await {
+                        error!("{}", err);
+                    }
                 });
             }
             "next" => {
-                let _ = tauri::async_runtime::spawn(async move {
-                    command::next_track(app.state::<Player>()).await.unwrap();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = command::next_track(app.state::<Player>()).await {
+                        error!("{}", err);
+                    }
                 });
             }
+            //TODO: Volume event handlers
             _ => error!("Unknown event"),
         }
     }
@@ -169,15 +176,9 @@ mod tests {
 
     use temp_dir::TempDir;
 
-    use super::*;
+    use crate::assert_vec_eq;
 
-    macro_rules! assert_vec_eq {
-        ($left:expr, $right:expr) => {
-            let left_set: std::collections::HashSet<_> = $left.into_iter().collect();
-            let right_set: std::collections::HashSet<_> = $right.into_iter().collect();
-            assert_eq!(left_set, right_set);
-        };
-    }
+    use super::*;
 
     #[test]
     fn test_open_folder() {

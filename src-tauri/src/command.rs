@@ -6,7 +6,7 @@ use tauri::{Manager, Runtime, State};
 use crate::player::{track::AlbumCover, track::Track, Player};
 
 #[tauri::command]
-pub async fn stop(player: State<'_, Player>) -> Result<(), ()> {
+pub async fn stop(player: State<'_, Player>) -> Result<(), String> {
     player.stop().await;
     Ok(())
 }
@@ -17,7 +17,7 @@ pub fn pause(player: State<Player>) {
 }
 
 #[tauri::command]
-pub async fn play(player: State<'_, Player>) -> Result<(), ()> {
+pub async fn play(player: State<'_, Player>) -> Result<(), String> {
     player.play().await;
     Ok(())
 }
@@ -76,14 +76,14 @@ pub async fn get_album_cover(player: State<'_, Player>) -> Result<AlbumCover, ()
 }
 
 #[tauri::command]
-pub async fn next_track(player: State<'_, Player>) -> Result<(), ()> {
+pub async fn next_track(player: State<'_, Player>) -> Result<(), String> {
     player.next().await;
 
     Ok(())
 }
 
 #[tauri::command]
-pub async fn previous_track(player: State<'_, Player>) -> Result<(), ()> {
+pub async fn previous_track(player: State<'_, Player>) -> Result<(), String> {
     player.previous().await;
 
     Ok(())
