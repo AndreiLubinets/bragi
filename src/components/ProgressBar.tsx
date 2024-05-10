@@ -17,7 +17,7 @@ const ProgressBar = ({ length }: { length: number }) => {
 
     async function seek(time: number) {
         console.log(time);
-        //await invoke("seek", { pos: time });
+        //await invoke("seek", { pos: time }).then(() => setCurrentPlaytime());
     }
 
     function handleClick(event: React.MouseEvent<HTMLProgressElement>) {
@@ -26,7 +26,7 @@ const ProgressBar = ({ length }: { length: number }) => {
 
     return (
         <div className="progress">
-            <input type="range" value={current} max={length} onClick={handleClick}></input>
+            <progress value={current} max={length} onClick={handleClick}></progress>
             <span>{convertLength(current)} / {convertLength(length)}</span>
         </div>
     );

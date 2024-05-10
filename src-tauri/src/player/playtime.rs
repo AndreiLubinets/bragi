@@ -73,8 +73,19 @@ impl Playtime {
         }
     }
 
+    /// Changes the duration of the playtime.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use bragi::player::playtime::Playtime;
+    /// let mut playtime = Playtime::default();
+    /// playtime.change(Duration::from_secs(10));
+    /// let time = playtime.time();
+    /// ```
     pub fn change(&mut self, time: Duration) {
-        self.pause_duration += time;
+        self.pause_duration = Duration::ZERO;
+        self.pause_time = None;
+        self.start_time = Some(Instant::now() - time);
     }
 }
 
@@ -112,5 +123,24 @@ mod tests {
     #[test]
     fn time_not_started() {
         assert!(Playtime::default().time().is_zero());
+    }
+
+    #[test]
+    fn change_test() {
+        let mut playtime = Playtime::default();
+        let duration = Duration::from_secs(10);
+
+        playtime.change(duration);
+
+        assert_eq!(duration, playtime.time());
+    }
+
+    #[test]
+    fn change_test_zero() {
+        let mut playtime = Playtime::default();
+
+        playtime.change(Duration::ZERO);
+
+        assert!(playtime.time().is_zero());
     }
 }
