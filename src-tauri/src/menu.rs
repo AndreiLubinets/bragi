@@ -7,6 +7,7 @@ use tauri::{
 };
 
 use crate::command;
+use crate::player::Player;
 
 const EXTENSIONS: [&str; 2] = ["mp3", "flac"];
 
@@ -14,7 +15,7 @@ pub fn menu() -> Menu {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let open = CustomMenuItem::new("open".to_string(), "Open Files");
     let open_folder = CustomMenuItem::new("open_folder".to_string(), "Open Folder");
-    let submenu = Submenu::new(
+    let submenu_file = Submenu::new(
         "File",
         Menu::new()
             .add_item(open)
@@ -22,7 +23,36 @@ pub fn menu() -> Menu {
             .add_item(quit),
     );
 
-    Menu::new().add_submenu(submenu)
+    let play = CustomMenuItem::new("play".to_string(), "Play");
+    let pause = CustomMenuItem::new("pause".to_string(), "Pause");
+    let stop = CustomMenuItem::new("stop".to_string(), "Stop");
+    let previous = CustomMenuItem::new("previous".to_string(), "Previous");
+    let next = CustomMenuItem::new("next".to_string(), "Next");
+    let submenu_playback = Submenu::new(
+        "Playback",
+        Menu::new()
+            .add_item(play)
+            .add_item(pause)
+            .add_item(stop)
+            .add_item(previous)
+            .add_item(next),
+    );
+
+    let volume_up = CustomMenuItem::new("volume_up".to_string(), "Volume Up");
+    let volume_down = CustomMenuItem::new("volume_down".to_string(), "Volume Down");
+    let mute = CustomMenuItem::new("mute".to_string(), "Mute");
+    let submenu_volume = Submenu::new(
+        "Volume",
+        Menu::new()
+            .add_item(volume_up)
+            .add_item(volume_down)
+            .add_item(mute),
+    );
+
+    Menu::new()
+        .add_submenu(submenu_file)
+        .add_submenu(submenu_playback)
+        .add_submenu(submenu_volume)
 }
 
 pub fn event_handler() -> impl Fn(WindowMenuEvent) {
@@ -66,6 +96,38 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                     None => debug!("Nothing selected"),
                 })
             }
+            "play" => {
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = command::play(app.state::<Player>()).await {
+                        error!("{}", err);
+                    }
+                });
+            }
+            "pause" => {
+                command::pause(app.state::<Player>());
+            }
+            "stop" => {
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = command::stop(app.state::<Player>()).await {
+                        error!("{}", err);
+                    }
+                });
+            }
+            "previous" => {
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = command::previous_track(app.state::<Player>()).await {
+                        error!("{}", err);
+                    }
+                });
+            }
+            "next" => {
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = command::next_track(app.state::<Player>()).await {
+                        error!("{}", err);
+                    }
+                });
+            }
+            //TODO: Volume event handlers
             _ => error!("Unknown event"),
         }
     }
@@ -114,15 +176,9 @@ mod tests {
 
     use temp_dir::TempDir;
 
-    use super::*;
+    use crate::assert_vec_eq;
 
-    macro_rules! assert_vec_eq {
-        ($left:expr, $right:expr) => {
-            let left_set: std::collections::HashSet<_> = $left.into_iter().collect();
-            let right_set: std::collections::HashSet<_> = $right.into_iter().collect();
-            assert_eq!(left_set, right_set);
-        };
-    }
+    use super::*;
 
     #[test]
     fn test_open_folder() {

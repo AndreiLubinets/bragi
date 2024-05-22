@@ -13,3 +13,15 @@ impl AtomicSub<usize> for AtomicUsize {
         );
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[macro_export]
+    macro_rules! assert_vec_eq {
+        ($left:expr, $right:expr) => {
+            let left_set: std::collections::HashSet<_> = $left.into_iter().collect();
+            let right_set: std::collections::HashSet<_> = $right.into_iter().collect();
+            assert_eq!(left_set, right_set);
+        };
+    }
+}

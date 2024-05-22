@@ -11,7 +11,7 @@ table {
 
 tr {
     height: 2.5em;
-    background-color: #0f0f0f98;
+    background-color: #1b1b1b;
     border-right: 0px;
     margin-right: 0px;
     padding-bottom: 20px;
@@ -20,7 +20,7 @@ tr {
 }
 
 th {
-    background-color: #0f0f0f;
+    background-color: #0f0f0f97;
     border: 1px solid black;
     border-right: 0px;
     margin-right: 0px;
