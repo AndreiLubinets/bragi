@@ -120,8 +120,7 @@ button {
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
-    background: rgb(2, 0, 36);
-    background: linear-gradient(180deg, rgba(59, 16, 85, 1) 0%, rgba(59, 16, 85, 1) 49%, rgba(92, 40, 126, 1) 100%);
+    background: #1b1b1b;
     background-repeat: no-repeat;
     height: 100%;
   }
