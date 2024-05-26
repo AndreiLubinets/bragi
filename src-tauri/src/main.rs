@@ -55,9 +55,8 @@ fn main() {
             command::change_track,
             command::get_album_cover,
             command::next_track,
-            command::previous_track //command::play_queue
+            command::previous_track,
             command::seek,
-            //command::play_queue
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -87,6 +87,9 @@ pub async fn previous_track(player: State<'_, Player>) -> Result<(), String> {
     player.previous().await;
 
     Ok(())
+}
+
+#[tauri::command]
 pub fn seek(player: State<Player>, pos: f64) -> Result<(), ()> {
     player
         .seek(Duration::from_secs_f64(pos))
