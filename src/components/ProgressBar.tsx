@@ -16,12 +16,11 @@ const ProgressBar = ({ length }: { length: number }) => {
     }
 
     async function seek(time: number) {
-        console.log(time);
-        //await invoke("seek", { pos: time }).then(() => setCurrentPlaytime());
+        await invoke("seek", { pos: time }).then(() => setCurrentPlaytime());
     }
 
     function handleClick(event: React.MouseEvent<HTMLProgressElement>) {
-        seek((event.clientX * length) / event.currentTarget.offsetWidth);
+        seek(((event.clientX - event.currentTarget.offsetLeft) * length) / event.currentTarget.offsetWidth);
     }
 
     return (
