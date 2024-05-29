@@ -156,7 +156,7 @@ impl Player {
         let duration = pos.into();
         self.sink
             .try_seek(duration)
-            .and_then(|_| Ok(self.playtime.blocking_write().change(duration)))
+            .inspect(|_| self.playtime.blocking_write().change(duration))
             .map_err(|err| anyhow!("{}", err))
     }
 }
