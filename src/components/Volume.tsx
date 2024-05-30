@@ -28,7 +28,7 @@ function Volume() {
     }
 
     return (
-        <>
+        <div className="volume">
             <button
                 className="control-button"
                 onClick={() => setVisible(prev => !prev)}
@@ -46,7 +46,7 @@ function Volume() {
                     setVolume(event.target.valueAsNumber)
                 }}
             />
-        </>
+        </div>
     )
 }
 

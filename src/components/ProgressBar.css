@@ -1,8 +1,8 @@
-.progress progress {
+.progress input[type="range"] {
     accent-color: #606cff;
+    padding: 0;
+    width: 100%;
 }
-
-
 
 .progress {
     margin: 0.5em;
