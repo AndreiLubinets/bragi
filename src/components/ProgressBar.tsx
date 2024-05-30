@@ -15,9 +15,17 @@ const ProgressBar = ({ length }: { length: number }) => {
         setCurrent(await invoke("playtime", {}));
     }
 
+    async function seek(time: number) {
+        await invoke("seek", { pos: time }).then(() => setCurrentPlaytime());
+    }
+
+    function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+        seek(event.target.valueAsNumber);
+    }
+
     return (
         <div className="progress">
-            <progress value={current} max={length}></progress>
+            <input type="range" value={current} max={length} onChange={handleChange}></input>
             <span>{convertLength(current)} / {convertLength(length)}</span>
         </div>
     );

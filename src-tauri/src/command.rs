@@ -1,6 +1,6 @@
-use std::{collections::VecDeque, error::Error, path::PathBuf};
+use std::{collections::VecDeque, error::Error, path::PathBuf, time::Duration};
 
-use log::warn;
+use log::{error, warn};
 use tauri::{Manager, Runtime, State};
 
 use crate::player::{track::AlbumCover, track::Track, Player};
@@ -87,4 +87,12 @@ pub async fn previous_track(player: State<'_, Player>) -> Result<(), String> {
     player.previous().await;
 
     Ok(())
+}
+
+#[tauri::command]
+pub fn seek(player: State<Player>, pos: f64) -> Result<(), ()> {
+    player
+        .seek(Duration::from_secs_f64(pos))
+        .inspect_err(|err| error!("{}", err))
+        .map_err(|_| ())
 }

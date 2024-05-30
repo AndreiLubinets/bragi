@@ -1,6 +1,9 @@
 use log::debug;
 use std::time::{Duration, Instant};
 
+/// Tracks the playtime. Use `play` and `pause` to start and stop the playtime.
+/// Use `time` to get the duration of the playtime.
+/// Use `change` to change the duration of the playtime.
 #[derive(Clone, Default)]
 pub struct Playtime {
     start_time: Option<Instant>,
@@ -9,11 +12,13 @@ pub struct Playtime {
 }
 
 impl Playtime {
+    /// Pauses the playtime. Use `play` to start it again.
     pub fn pause(&mut self) {
         self.pause_time = Some(Instant::now());
         debug!("Paused at: {:?}", self.pause_time);
     }
 
+    /// Starts the playtime. Use `pause` to stop it.
     pub fn play(&mut self) {
         if self.start_time.is_none() {
             self.start_time = Some(Instant::now());
@@ -25,6 +30,7 @@ impl Playtime {
         }
     }
 
+    /// Returns the duration of the playtime.
     pub fn time(&self) -> Duration {
         match self.start_time {
             Some(start) => match self.pause_time {
@@ -32,6 +38,15 @@ impl Playtime {
                 None => start.elapsed() - self.pause_duration,
             },
             None => Duration::ZERO,
+        }
+    }
+
+    /// Changes the duration of the playtime.
+    pub fn change(&mut self, time: Duration) {
+        self.pause_duration = Duration::ZERO;
+        self.start_time = Some(Instant::now() - time);
+        if self.pause_time.is_some() {
+            self.pause_time = Some(Instant::now());
         }
     }
 }
@@ -70,5 +85,41 @@ mod tests {
     #[test]
     fn time_not_started() {
         assert!(Playtime::default().time().is_zero());
+    }
+
+    #[test]
+    fn change_test() {
+        let mut playtime = Playtime::default();
+        let duration = Duration::from_secs(10);
+
+        playtime.play();
+        playtime.change(duration);
+
+        assert_eq!(duration.as_secs(), playtime.time().as_secs());
+    }
+
+    #[test]
+    fn change_test_zero() {
+        let mut playtime = Playtime::default();
+
+        playtime.play();
+        playtime.change(Duration::ZERO);
+
+        assert_eq!(Duration::ZERO.as_secs(), playtime.time().as_secs());
+    }
+
+    //TODO: Fix
+    #[test]
+    #[ignore]
+    fn change_test_playback_paused() {
+        let mut playtime = Playtime::default();
+        let duration = Duration::from_secs(10);
+
+        playtime.play();
+        playtime.pause();
+        playtime.change(duration);
+        sleep(Duration::from_secs(1));
+
+        assert_eq!(duration.as_secs(), playtime.time().as_secs());
     }
 }

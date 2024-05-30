@@ -151,6 +151,14 @@ impl Player {
             .ok_or(anyhow!("No current track"))?
             .album_cover()
     }
+
+    pub fn seek(&self, pos: impl Into<Duration>) -> anyhow::Result<()> {
+        let duration = pos.into();
+        self.sink
+            .try_seek(duration)
+            .inspect(|_| self.playtime.blocking_write().change(duration))
+            .map_err(|err| anyhow!("{}", err))
+    }
 }
 
 #[allow(dead_code)]
