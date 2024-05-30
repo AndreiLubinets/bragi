@@ -1,6 +1,6 @@
 [package]
 name = "bragi"
-version = "0.1.0"
+version = "0.1.1"
 description = "A music player"
 authors = ["Andrei Lubinets"]
 license = "GPL-3.0"
