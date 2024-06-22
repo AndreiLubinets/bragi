@@ -127,6 +127,15 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                     }
                 });
             }
+            "volume_up" => {
+                command::set_volume(app.state::<Player>(), 0.06, true);
+            }
+            "volume_down" => {
+                command::set_volume(app.state::<Player>(), -0.06, true);
+            }
+            "mute" => {
+                command::set_volume(app.state::<Player>(), 0.0, false);
+            }
             //TODO: Volume event handlers
             _ => error!("Unknown event"),
         }

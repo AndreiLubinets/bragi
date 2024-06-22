@@ -33,8 +33,8 @@ pub async fn get_playlist(player: State<'_, Player>) -> Result<VecDeque<Track>, 
 }
 
 #[tauri::command]
-pub fn set_volume(player: State<Player>, volume: f32) {
-    player.set_volume(volume);
+pub fn set_volume(player: State<Player>, volume: f32, is_step: bool) {
+    player.set_volume(volume, is_step);
 }
 
 #[tauri::command]

@@ -14,7 +14,7 @@ function Volume() {
     }, [volume])
 
     async function changeVolume() {
-        await invoke("set_volume", { volume: volume });
+        await invoke("set_volume", { volume: volume, isStep: false });
     }
 
     function selectIcon(): string {

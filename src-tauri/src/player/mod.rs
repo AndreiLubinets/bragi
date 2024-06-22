@@ -130,10 +130,17 @@ impl Player {
         self.queue.get_playlist().await
     }
 
-    pub fn set_volume(&self, volume: impl Into<f32>) {
-        let volume_f32: f32 = volume.into();
-        self.sink.set_volume(volume_f32);
-        debug!("Volume changed to: {}", volume_f32)
+    pub fn set_volume(&self, volume: impl Into<f32>, is_step: bool) {
+        if is_step {
+            match volume.into() + self.sink.volume() {
+                v if v > 1.0 => self.sink.set_volume(1.0),
+                v if v < 0.0 => self.sink.set_volume(0.0),
+                v => self.sink.set_volume(v),
+            }
+        } else {
+            self.sink.set_volume(volume.into());
+        }
+        debug!("Volume changed to: {}", self.sink.volume())
     }
 
     pub async fn change_track(&self, index: usize) -> anyhow::Result<()> {
