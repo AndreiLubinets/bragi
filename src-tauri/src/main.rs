@@ -1,21 +1,30 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use clap::Parser;
 use log::error;
 use menu::{event_handler, menu};
 use player::{Event, Player};
 use tauri::{async_runtime, Manager};
 
+mod cli;
 mod command;
 mod menu;
 mod player;
 mod util;
 
 fn main() {
-    tauri::Builder::default()
+    let args = cli::Args::parse();
+    let log_level = if args.debug {
+        log::LevelFilter::Debug
+    } else {
+        log::LevelFilter::Info
+    };
+
+    let app = tauri::Builder::default()
         .plugin(
             tauri_plugin_log::Builder::default()
-                .level(log::LevelFilter::Info)
+                .level(log_level)
                 .build(),
         )
         .setup(|app| {
@@ -23,6 +32,7 @@ fn main() {
             let handle = app.handle();
             app.manage(player);
 
+            // event hook setup
             async_runtime::spawn(async move {
                 while let Ok(event) = rx.recv() {
                     match event {
@@ -58,6 +68,17 @@ fn main() {
             command::previous_track,
             command::seek,
         ])
-        .run(tauri::generate_context!())
+        .build(tauri::generate_context!())
         .expect("error while running tauri application");
+
+    app.app.run(move |handle, _event| {
+        // start playback if a file is provided
+        if let Some(file_path) = args.file {
+            tauri::async_runtime::spawn(async move {
+                if let Err(err) = command::play_queue(handle, vec![file_path]).await {
+                    error!("{}", err);
+                };
+            });
+        };
+    });
 }

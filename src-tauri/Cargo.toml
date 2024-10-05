@@ -23,6 +23,7 @@ anyhow = "1.0.81"
 log = "0.4"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 mp3-duration = "0.1.10"
+clap = { version = "4.5.0", features = ["derive"] }
 
 [dev-dependencies]
 temp-dir = "0.1.13"
