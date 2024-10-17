@@ -2,73 +2,80 @@ use std::path::{Path, PathBuf};
 
 use log::{debug, error};
 use tauri::{
-    api::dialog::{FileDialogBuilder, MessageDialogBuilder},
-    CustomMenuItem, Manager, Menu, Submenu, WindowMenuEvent,
+    menu::{Menu, MenuEvent, MenuItemBuilder, SubmenuBuilder},
+    AppHandle, Manager, Runtime,
 };
+use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
 
 use crate::command;
 use crate::player::Player;
 
 const EXTENSIONS: [&str; 2] = ["mp3", "flac"];
 
-pub fn menu() -> Menu {
-    let quit = CustomMenuItem::new("quit".to_string(), "Quit");
-    let open = CustomMenuItem::new("open".to_string(), "Open Files");
-    let open_folder = CustomMenuItem::new("open_folder".to_string(), "Open Folder");
-    let submenu_file = Submenu::new(
-        "File",
-        Menu::new()
-            .add_item(open)
-            .add_item(open_folder)
-            .add_item(quit),
-    );
+pub fn menu<R>() -> impl FnOnce(&AppHandle<R>) -> tauri::Result<Menu<R>> + Send
+where
+    R: Runtime,
+{
+    |app| {
+        let quit = MenuItemBuilder::new("Quit").id("quit").build(app)?;
+        let open = MenuItemBuilder::new("Open Files").id("open").build(app)?;
+        let open_folder = MenuItemBuilder::new("Open Folder")
+            .id("open_folder")
+            .build(app)?;
+        let submenu_file = SubmenuBuilder::new(app, "File")
+            .items(&[&open, &open_folder, &quit])
+            .build()?;
 
-    let play = CustomMenuItem::new("play".to_string(), "Play");
-    let pause = CustomMenuItem::new("pause".to_string(), "Pause");
-    let stop = CustomMenuItem::new("stop".to_string(), "Stop");
-    let previous = CustomMenuItem::new("previous".to_string(), "Previous");
-    let next = CustomMenuItem::new("next".to_string(), "Next");
-    let submenu_playback = Submenu::new(
-        "Playback",
-        Menu::new()
-            .add_item(play)
-            .add_item(pause)
-            .add_item(stop)
-            .add_item(previous)
-            .add_item(next),
-    );
+        let play = MenuItemBuilder::new("Play").id("play").build(app)?;
+        let pause = MenuItemBuilder::new("Pause").id("pause").build(app)?;
+        let stop = MenuItemBuilder::new("Stop").id("stop").build(app)?;
+        let previous = MenuItemBuilder::new("Previous").id("previous").build(app)?;
+        let next = MenuItemBuilder::new("Next").id("next").build(app)?;
+        let submenu_playback = SubmenuBuilder::new(app, "Playback")
+            .items(&[&play, &pause, &stop, &previous, &next])
+            .build()?;
 
-    let volume_up = CustomMenuItem::new("volume_up".to_string(), "Volume Up");
-    let volume_down = CustomMenuItem::new("volume_down".to_string(), "Volume Down");
-    let mute = CustomMenuItem::new("mute".to_string(), "Mute");
-    let submenu_volume = Submenu::new(
-        "Volume",
-        Menu::new()
-            .add_item(volume_up)
-            .add_item(volume_down)
-            .add_item(mute),
-    );
+        let volume_up = MenuItemBuilder::new("Volume Up")
+            .id("volume_up")
+            .build(app)?;
+        let volume_down = MenuItemBuilder::new("Volume Down")
+            .id("volume_down")
+            .build(app)?;
+        let mute = MenuItemBuilder::new("Mute").id("mute").build(app)?;
+        let submenu_volume = SubmenuBuilder::new(app, "Volume")
+            .items(&[&volume_up, &volume_down, &mute])
+            .build()?;
 
-    Menu::new()
-        .add_submenu(submenu_file)
-        .add_submenu(submenu_playback)
-        .add_submenu(submenu_volume)
+        Menu::with_items(app, &[&submenu_file, &submenu_playback, &submenu_volume])
+    }
 }
 
-pub fn event_handler() -> impl Fn(WindowMenuEvent) {
-    |event| {
-        let app = event.window().app_handle();
-        match event.menu_item_id() {
+pub fn event_handler<R>() -> impl Fn(&AppHandle<R>, MenuEvent) + Send + Sync + 'static
+where
+    R: Runtime,
+{
+    |app: &AppHandle<R>, event: MenuEvent| {
+        let handle = app.clone();
+        match event.id().0.as_ref() {
             "quit" => {
                 std::process::exit(0);
             }
-            "open" => FileDialogBuilder::default()
+            "open" => app
+                .dialog()
+                .file()
                 .add_filter("Audio", &EXTENSIONS)
-                .pick_files(move |path_bufs| {
-                    match path_bufs {
+                .pick_files(move |file_paths| {
+                    match file_paths {
                         Some(paths) => {
                             tauri::async_runtime::spawn(async move {
-                                if let Err(err) = command::play_queue(app, paths).await {
+                                let path_bufs = paths
+                                    .iter()
+                                    .map(|entry| {
+                                        entry.clone().into_path().expect("Not a file path")
+                                    })
+                                    .collect();
+
+                                if let Err(err) = command::play_queue(&handle, path_bufs).await {
                                     error!("{}", err);
                                 };
                             });
@@ -76,29 +83,34 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
                         None => debug!("Nothing selected"),
                     };
                 }),
-            "open_folder" => {
-                FileDialogBuilder::default().pick_folder(move |path_buf| match path_buf {
+            "open_folder" => app
+                .dialog()
+                .file()
+                .pick_folder(move |path_buf| match path_buf {
                     Some(path) => {
                         tauri::async_runtime::spawn(async move {
-                            let paths: Vec<PathBuf> = open_folder(path).unwrap();
+                            let paths: Vec<PathBuf> = open_folder(path.as_path().unwrap()).unwrap();
 
                             if paths.is_empty() {
-                                MessageDialogBuilder::new("Open Folder", "No audio files found")
-                                    .show(|_| ());
+                                handle
+                                    .dialog()
+                                    .message("No audio files found")
+                                    .title("Open Folder")
+                                    .kind(MessageDialogKind::Error)
+                                    .blocking_show();
                                 return;
                             }
 
-                            if let Err(err) = command::play_queue(app, paths).await {
+                            if let Err(err) = command::play_queue(&handle, paths).await {
                                 error!("{}", err);
                             };
                         });
                     }
                     None => debug!("Nothing selected"),
-                })
-            }
+                }),
             "play" => {
                 tauri::async_runtime::spawn(async move {
-                    if let Err(err) = command::play(app.state::<Player>()).await {
+                    if let Err(err) = command::play(handle.state::<Player>()).await {
                         error!("{}", err);
                     }
                 });
@@ -108,21 +120,21 @@ pub fn event_handler() -> impl Fn(WindowMenuEvent) {
             }
             "stop" => {
                 tauri::async_runtime::spawn(async move {
-                    if let Err(err) = command::stop(app.state::<Player>()).await {
+                    if let Err(err) = command::stop(handle.state::<Player>()).await {
                         error!("{}", err);
                     }
                 });
             }
             "previous" => {
                 tauri::async_runtime::spawn(async move {
-                    if let Err(err) = command::previous_track(app.state::<Player>()).await {
+                    if let Err(err) = command::previous_track(handle.state::<Player>()).await {
                         error!("{}", err);
                     }
                 });
             }
             "next" => {
                 tauri::async_runtime::spawn(async move {
-                    if let Err(err) = command::next_track(app.state::<Player>()).await {
+                    if let Err(err) = command::next_track(handle.state::<Player>()).await {
                         error!("{}", err);
                     }
                 });

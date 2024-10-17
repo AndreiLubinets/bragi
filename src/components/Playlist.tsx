@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
 import ITrack from "../interfaces/track";
 import { convertLength } from "../util/time";
 import "./Playlist.css";

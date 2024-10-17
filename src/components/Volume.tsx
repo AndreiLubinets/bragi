@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import "./Volume.css";
 import volume_max_icon from '../assets/volume-max.svg';

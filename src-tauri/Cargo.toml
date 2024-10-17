@@ -1,6 +1,6 @@
 [package]
 name = "bragi"
-version = "0.1.1"
+version = "0.1.2"
 description = "A music player"
 authors = ["Andrei Lubinets"]
 license = "GPL-3.0"
@@ -10,10 +10,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.5", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "1.5", features = [ "dialog-open", "shell-open"] }
+tauri = { version = "2", features = [] }
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.111"
 tokio = { version = "1.37", features = ["rt", "macros"] }
@@ -21,8 +21,10 @@ rodio = { version = "0.18.1", features = ["symphonia-all"] }
 audiotags = "0.5"
 anyhow = "1.0.81"
 log = "0.4"
-tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 mp3-duration = "0.1.10"
+tauri-plugin-log = { version = "2" }
+tauri-plugin-dialog = "2"
+tauri-plugin-shell = "2"
 
 [dev-dependencies]
 temp-dir = "0.1.13"

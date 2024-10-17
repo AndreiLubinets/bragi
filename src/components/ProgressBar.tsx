@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./ProgressBar.css";
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
 import { useInterval } from "../util/poll";
 import { convertLength } from "../util/time";
 
