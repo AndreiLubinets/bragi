@@ -1,7 +1,6 @@
 use std::{
     collections::VecDeque,
     sync::atomic::{AtomicUsize, Ordering},
-    usize,
 };
 
 use log::info;
@@ -56,7 +55,7 @@ impl Queue {
     }
 
     pub async fn change_to_previous(&self) {
-        //requies to substract 2 so the call of next() method 
+        //requies to substract 2 so the call of next() method
         //during iteration will return previous track
         self.current.saturating_sub(2);
     }

@@ -1,7 +1,7 @@
 import ITrack from "../interfaces/track";
 import "./TrackInfo.css";
 import default_cover from '../assets/default-cover.svg';
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 
 const TrackInfo = ({ track }: { track: ITrack | undefined }) => {

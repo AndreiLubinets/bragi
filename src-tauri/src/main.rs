@@ -4,7 +4,7 @@
 use log::error;
 use menu::{event_handler, menu};
 use player::{Event, Player};
-use tauri::{async_runtime, Manager};
+use tauri::{async_runtime, Emitter, Manager};
 
 mod command;
 mod menu;
@@ -13,6 +13,8 @@ mod util;
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(
             tauri_plugin_log::Builder::default()
                 .level(log::LevelFilter::Info)
@@ -20,19 +22,19 @@ fn main() {
         )
         .setup(|app| {
             let (player, rx) = Player::new().expect("failed to init player");
-            let handle = app.handle();
+            let handle = app.handle().clone();
             app.manage(player);
 
             async_runtime::spawn(async move {
                 while let Ok(event) = rx.recv() {
                     match event {
                         Event::TrackChanged(index) => {
-                            if let Err(err) = handle.emit_all("track_changed", index) {
+                            if let Err(err) = handle.emit("track_changed", index) {
                                 error!("{}", err);
                             }
                         }
                         Event::PlaybackStopped => {
-                            if let Err(err) = handle.emit_all("playback_stopped", ()) {
+                            if let Err(err) = handle.emit("playback_stopped", ()) {
                                 error!("{}", err);
                             }
                         }

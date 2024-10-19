@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
-import { } from "@tauri-apps/api/window"
+import { invoke } from "@tauri-apps/api/core";
+import { } from "@tauri-apps/api/webviewWindow"
 import play_icon from './assets/play.svg';
 import stop_icon from './assets/stop.svg';
 import pause_icon from './assets/pause.svg';

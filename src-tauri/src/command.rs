@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, error::Error, path::PathBuf, time::Duration};
 
 use log::{error, warn};
-use tauri::{Manager, Runtime, State};
+use tauri::{Emitter, Manager, Runtime, State};
 
 use crate::player::{track::AlbumCover, track::Track, Player};
 
@@ -44,7 +44,7 @@ pub fn playtime(player: State<Player>) -> f64 {
 
 #[tauri::command]
 pub async fn play_queue<R: Runtime>(
-    app: tauri::AppHandle<R>,
+    app: &tauri::AppHandle<R>,
     paths: Vec<PathBuf>,
 ) -> Result<(), Box<dyn Error>> {
     let player = app.state::<Player>();
@@ -53,7 +53,7 @@ pub async fn play_queue<R: Runtime>(
         player.open(path).await?;
     }
 
-    app.emit_all("open", ())?;
+    app.emit("open", ())?;
     if !player.is_playing() {
         player.play_queue().await?;
     }
