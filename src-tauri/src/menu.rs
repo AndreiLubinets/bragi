@@ -139,7 +139,16 @@ where
                     }
                 });
             }
-            //TODO: Volume event handlers
+            "volume_up" => {
+                command::adjust_volume(app.state::<Player>(), 0.06);
+            }
+            "volume_down" => {
+                command::adjust_volume(app.state::<Player>(), -0.06);
+            }
+            "mute" => {
+                //TODO: Fix ui update
+                command::set_volume(app.state::<Player>(), 0.0);
+            }
             _ => error!("Unknown event"),
         }
     }
