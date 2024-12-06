@@ -38,6 +38,11 @@ fn main() {
                                 error!("{}", err);
                             }
                         }
+                        Event::VolumeUpdated => {
+                            if let Err(err) = handle.emit("volume_updated", ()) {
+                                error!("{}", err);
+                            }
+                        }
                     }
                 }
             });
@@ -53,6 +58,8 @@ fn main() {
             command::is_playing,
             command::get_playlist,
             command::set_volume,
+            command::adjust_volume,
+            command::get_volume,
             command::playtime,
             command::change_track,
             command::get_album_cover,

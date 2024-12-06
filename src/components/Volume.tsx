@@ -4,6 +4,7 @@ import "./Volume.css";
 import volume_max_icon from '../assets/volume-max.svg';
 import volume_min_icon from '../assets/volume-min.svg';
 import volume_mute_icon from '../assets/volume-mute.svg';
+import { listen } from "@tauri-apps/api/event";
 
 function Volume() {
     const [volume, setVolume] = useState(1);
@@ -12,6 +13,14 @@ function Volume() {
     useEffect(() => {
         changeVolume();
     }, [volume])
+
+    listen('volume_updated', async () => {
+        setVolume(await getVolume());
+    })
+
+    async function getVolume(): Promise<number> {
+        return await invoke("get_volume", {});
+    }
 
     async function changeVolume() {
         await invoke("set_volume", { volume: volume });

@@ -1,4 +1,4 @@
-use log::{debug, info};
+use log::{debug, error, info};
 use std::{
     collections::VecDeque,
     io::BufReader,
@@ -67,8 +67,7 @@ impl Player {
 
             let file = std::fs::File::open(track.path())?;
             self.sink.append(rodio::Decoder::new(BufReader::new(file))?);
-            self.event_handler
-                .send(Event::TrackChanged(self.queue.current()))?;
+            self.send_event(Event::TrackChanged(self.queue.current()));
             self.play().await;
 
             info!("Playing {}", &track.path().to_string_lossy());
@@ -108,7 +107,7 @@ impl Player {
         self.is_playing
             .store(false, std::sync::atomic::Ordering::Relaxed);
         self.queue.reset();
-        self.event_handler.send(Event::PlaybackStopped).unwrap();
+        self.send_event(Event::PlaybackStopped);
         info!("Sink stopped");
     }
 
@@ -130,10 +129,22 @@ impl Player {
         self.queue.get_playlist().await
     }
 
+    pub fn volume(&self) -> f32 {
+        self.sink.volume()
+    }
+
     pub fn set_volume(&self, volume: impl Into<f32>) {
-        let volume_f32: f32 = volume.into();
-        self.sink.set_volume(volume_f32);
-        debug!("Volume changed to: {}", volume_f32)
+        match volume.into() {
+            v if v > 1.0 => self.sink.set_volume(1.0),
+            v if v < 0.0 => self.sink.set_volume(0.0),
+            v => self.sink.set_volume(v),
+        }
+        debug!("Volume changed to: {}", self.sink.volume())
+    }
+
+    pub fn adjust_volume(&self, step: impl Into<f32>) {
+        self.set_volume(self.sink.volume() + step.into());
+        self.send_event(Event::VolumeUpdated);
     }
 
     pub async fn change_track(&self, index: usize) -> anyhow::Result<()> {
@@ -159,6 +170,12 @@ impl Player {
             .inspect(|_| self.playtime.blocking_write().change(duration))
             .map_err(|err| anyhow!("{}", err))
     }
+
+    fn send_event(&self, event: Event) {
+        if let Err(err) = self.event_handler.send(event) {
+            error!("Unable to send an event ping: {}", err);
+        }
+    }
 }
 
 #[allow(dead_code)]
@@ -171,4 +188,5 @@ unsafe impl Sync for StreamWrapper {}
 pub enum Event {
     TrackChanged(usize),
     PlaybackStopped,
+    VolumeUpdated,
 }

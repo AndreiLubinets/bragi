@@ -38,6 +38,16 @@ pub fn set_volume(player: State<Player>, volume: f32) {
 }
 
 #[tauri::command]
+pub fn adjust_volume(player: State<Player>, step: f32) {
+    player.adjust_volume(step);
+}
+
+#[tauri::command]
+pub fn get_volume(player: State<Player>) -> f32 {
+    player.volume()
+}
+
+#[tauri::command]
 pub fn playtime(player: State<Player>) -> f64 {
     player.playtime().as_secs_f64()
 }
